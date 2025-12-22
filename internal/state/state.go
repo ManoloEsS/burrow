@@ -8,7 +8,7 @@ import (
 type State struct {
 	Cfg      *config.Config
 	Screen   ScreenState
-	Requests domain.Request
+	Requests map[string]domain.Request
 }
 
 type ScreenState int

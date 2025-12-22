@@ -1,7 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"os"
+
+	"github.com/ManoloEsS/burrow/internal/cli"
+	"github.com/ManoloEsS/burrow/internal/config"
+	"github.com/ManoloEsS/burrow/internal/state"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -12,19 +18,28 @@ func main() {
 	// }
 	// defer db.Close()
 	//
+	godotenv.Load()
 
-	// cfg := config.Config{
-	// 	DefaultPort: DefaultPort,
-	// }
+	defaultPort := os.Getenv("DEFAULT_PORT")
+	if defaultPort == "" {
+		log.Fatalf("default port must be set")
+	}
 
-	// state := &state.State{
-	// 	Cfg:    &cfg,
-	// 	Screen: state.MainScreen,
-	// }
-	//
-	// scanner := bufio.NewScanner(os.Stdin)
+	cfg := config.Config{
+		DefaultPort: defaultPort,
+	}
 
-	fmt.Println("Welcome to burrow")
+	st := state.State{
+		Cfg:    &cfg,
+		Screen: state.MainScreen,
+	}
+
+	console := cli.NewConsole(os.Stdin, os.Stdout)
+	a := app.New(console, st)
+
+	if err := a.Run(); err != nil {
+		os.Exit(1)
+	}
 
 	// for {
 	// 	switch state.Screen {

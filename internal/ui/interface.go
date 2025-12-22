@@ -1,4 +1,4 @@
-package cli
+package ui
 
 type UI interface {
 	ReadLine() (string, error)
