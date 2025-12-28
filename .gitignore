@@ -10,6 +10,7 @@
 
 # Test binary, built with `go test -c`
 *.test
+coverage.out
 
 # Code coverage profiles and other test artifacts
 *.out
@@ -26,6 +27,23 @@ go.work.sum
 
 # env file
 .env
+
+# Database files
+*.db
+*.sqlite3
+*.sqlite
+
+# SQLC files
+internal/database/queries.go
+
+# Goose logs
+/goose_db_version
+
+# logs
+*.logs
+
+# Build artifacts
+burrow
 
 # Editor/IDE
 # .idea/
