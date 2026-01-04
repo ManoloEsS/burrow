@@ -51,3 +51,4 @@ burrow
 
 # Agent sessions
 session*
+.env

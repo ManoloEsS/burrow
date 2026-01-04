@@ -6,12 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ManoloEsS/burrow/internal/app"
 	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/ManoloEsS/burrow/internal/database"
-	"github.com/ManoloEsS/burrow/internal/domain"
-	"github.com/ManoloEsS/burrow/internal/state"
-	"github.com/ManoloEsS/burrow/internal/ui/console"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -37,24 +33,7 @@ func main() {
 
 	setupGracefulShutdown(databaseInstance)
 
-	st := &state.State{
-		Cfg: cfg,
-		DB:  databaseInstance,
-		Screen: state.ScreenState{
-			CurrentScreen: "main",
-			SelectedID:    "",
-		},
-		Requests: make(map[string]domain.Request),
-	}
-
 	// initialize ui and run app
-	consoleUI := console.NewConsole(os.Stdin, os.Stdout)
-	a := app.New(consoleUI, st)
-
-	if err := a.Run(); err != nil {
-		log.Printf("Application error: %v", err)
-		os.Exit(1)
-	}
 }
 
 func setupGracefulShutdown(db *database.Database) {

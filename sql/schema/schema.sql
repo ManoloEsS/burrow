@@ -17,7 +17,7 @@ CREATE TABLE requests (
   url TEXT NOT NULL,
   content_type TEXT,
   body TEXT,
-  params TEXT,     -- JSON stored as TEXT for SQLite compatibility
-  auth TEXT,       -- JSON stored as TEXT for SQLite compatibility
-  headers TEXT     -- JSON stored as TEXT for SQLite compatibility
+  params TEXT,
+  auth TEXT,
+  headers TEXT
 );
