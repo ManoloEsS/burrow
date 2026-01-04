@@ -7,13 +7,13 @@ import (
 	"github.com/ManoloEsS/burrow/internal/config"
 )
 
+// Request struct with json fields for saving into db
 type Request struct {
 	Method      string            `json:"method"`
 	URL         string            `json:"url"`
 	ContentType string            `json:"content-type,omitempty"`
 	Body        string            `json:"body,omitempty"`
 	Params      map[string]string `json:"params,omitempty"`
-	Auth        map[string]string `json:"auth,omitempty"`
 	Headers     map[string]string `json:"headers,omitempty"`
 }
 
@@ -57,23 +57,14 @@ func (req *Request) ParseHeaders(headersStr string) error {
 	return nil
 }
 
-func (req *Request) ParseBody(body string) error {
-	req.Body = body
+func (req *Request) ParseBodyType(bodyTypeStr string) error {
+	req.ContentType = bodyTypeStr
 	return nil
 }
 
-func (req *Request) ParseAuth(auth string) error {
-	if req.Auth == nil {
-		req.Auth = make(map[string]string)
-	}
-
-	if auth == "" {
-		return nil
-	}
-
-	req.Auth[auth] = "placeholder"
+func (req *Request) ParseBody(body string) error {
+	req.Body = body
 	return nil
-
 }
 
 func (req *Request) ParseParams(paramsStr string) error {

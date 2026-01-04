@@ -1,26 +1,23 @@
 -- name: CreateRequest :one
-INSERT INTO requests (
-  id, name, method, url, content_type, body, params, auth, headers
+INSERT INTO request_blobs (
+  name, request_json
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?
 )
 RETURNING *;
 
 -- name: GetRequest :one
-SELECT * FROM requests WHERE id = ? LIMIT 1;
+SELECT * FROM request_blobs WHERE name = ? LIMIT 1;
 
 -- name: ListRequests :many
-SELECT * FROM requests ORDER BY created_at DESC;
+SELECT * FROM request_blobs ORDER BY created_at DESC;
 
 -- name: UpdateRequest :one
-UPDATE requests
-SET name = ?, method = ?, url = ?, content_type = ?, body = ?,
-    params = ?, auth = ?, headers = ?, updated_at = CURRENT_TIMESTAMP
-WHERE id = ?
+UPDATE request_blobs
+SET request_json = ?, updated_at = CURRENT_TIMESTAMP
+WHERE name = ?
 RETURNING *;
 
 -- name: DeleteRequest :exec
-DELETE FROM requests WHERE id = ?;
+DELETE FROM request_blobs WHERE name = ?;
 
--- name: ListRequestsByMethod :many
-SELECT * FROM requests WHERE method = ? ORDER BY created_at DESC;

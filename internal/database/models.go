@@ -8,16 +8,9 @@ import (
 	"database/sql"
 )
 
-type Request struct {
-	ID          string
+type RequestBlob struct {
+	Name        string
 	CreatedAt   sql.NullTime
 	UpdatedAt   sql.NullTime
-	Name        string
-	Method      string
-	Url         string
-	ContentType sql.NullString
-	Body        sql.NullString
-	Params      sql.NullString
-	Auth        sql.NullString
-	Headers     sql.NullString
+	RequestJson interface{}
 }

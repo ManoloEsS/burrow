@@ -8,6 +8,8 @@ import (
 
 	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/ManoloEsS/burrow/internal/database"
+	"github.com/ManoloEsS/burrow/internal/service"
+	"github.com/ManoloEsS/burrow/internal/tui"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -32,7 +34,23 @@ func main() {
 	defer databaseInstance.Close()
 
 	setupGracefulShutdown(databaseInstance)
+	// // Initialize repository layer (mock implementation)
+	// mockRepo := repository.NewMockRepository()
+	//
+	// // Initialize service layer
+	services := service.NewServices(databaseInstance, cfg)
 
+	// Initialize UI layer
+	ui := tui.NewUI(services)
+
+	if err := ui.Initialize(); err != nil {
+		log.Fatalf("Failed to initialize UI: %v", err)
+	}
+
+	// Start the application
+	if err := ui.Start(); err != nil {
+		log.Fatalf("Failed to start application: %v", err)
+	}
 	// initialize ui and run app
 }
 

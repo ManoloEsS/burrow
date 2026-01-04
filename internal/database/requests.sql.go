@@ -7,155 +7,77 @@ package database
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createRequest = `-- name: CreateRequest :one
-INSERT INTO requests (
-  id, name, method, url, content_type, body, params, auth, headers
+INSERT INTO request_blobs (
+  name, request_json
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?
 )
-RETURNING id, created_at, updated_at, name, method, url, content_type, body, params, auth, headers
+RETURNING name, created_at, updated_at, request_json
 `
 
 type CreateRequestParams struct {
-	ID          string
 	Name        string
-	Method      string
-	Url         string
-	ContentType sql.NullString
-	Body        sql.NullString
-	Params      sql.NullString
-	Auth        sql.NullString
-	Headers     sql.NullString
+	RequestJson interface{}
 }
 
-func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error) {
-	row := q.db.QueryRowContext(ctx, createRequest,
-		arg.ID,
-		arg.Name,
-		arg.Method,
-		arg.Url,
-		arg.ContentType,
-		arg.Body,
-		arg.Params,
-		arg.Auth,
-		arg.Headers,
-	)
-	var i Request
+func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (RequestBlob, error) {
+	row := q.db.QueryRowContext(ctx, createRequest, arg.Name, arg.RequestJson)
+	var i RequestBlob
 	err := row.Scan(
-		&i.ID,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
-		&i.Method,
-		&i.Url,
-		&i.ContentType,
-		&i.Body,
-		&i.Params,
-		&i.Auth,
-		&i.Headers,
+		&i.RequestJson,
 	)
 	return i, err
 }
 
 const deleteRequest = `-- name: DeleteRequest :exec
-DELETE FROM requests WHERE id = ?
+DELETE FROM request_blobs WHERE name = ?
 `
 
-func (q *Queries) DeleteRequest(ctx context.Context, id string) error {
-	_, err := q.db.ExecContext(ctx, deleteRequest, id)
+func (q *Queries) DeleteRequest(ctx context.Context, name string) error {
+	_, err := q.db.ExecContext(ctx, deleteRequest, name)
 	return err
 }
 
 const getRequest = `-- name: GetRequest :one
-SELECT id, created_at, updated_at, name, method, url, content_type, body, params, auth, headers FROM requests WHERE id = ? LIMIT 1
+SELECT name, created_at, updated_at, request_json FROM request_blobs WHERE name = ? LIMIT 1
 `
 
-func (q *Queries) GetRequest(ctx context.Context, id string) (Request, error) {
-	row := q.db.QueryRowContext(ctx, getRequest, id)
-	var i Request
+func (q *Queries) GetRequest(ctx context.Context, name string) (RequestBlob, error) {
+	row := q.db.QueryRowContext(ctx, getRequest, name)
+	var i RequestBlob
 	err := row.Scan(
-		&i.ID,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
-		&i.Method,
-		&i.Url,
-		&i.ContentType,
-		&i.Body,
-		&i.Params,
-		&i.Auth,
-		&i.Headers,
+		&i.RequestJson,
 	)
 	return i, err
 }
 
 const listRequests = `-- name: ListRequests :many
-SELECT id, created_at, updated_at, name, method, url, content_type, body, params, auth, headers FROM requests ORDER BY created_at DESC
+SELECT name, created_at, updated_at, request_json FROM request_blobs ORDER BY created_at DESC
 `
 
-func (q *Queries) ListRequests(ctx context.Context) ([]Request, error) {
+func (q *Queries) ListRequests(ctx context.Context) ([]RequestBlob, error) {
 	rows, err := q.db.QueryContext(ctx, listRequests)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Request
+	var items []RequestBlob
 	for rows.Next() {
-		var i Request
+		var i RequestBlob
 		if err := rows.Scan(
-			&i.ID,
+			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Name,
-			&i.Method,
-			&i.Url,
-			&i.ContentType,
-			&i.Body,
-			&i.Params,
-			&i.Auth,
-			&i.Headers,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listRequestsByMethod = `-- name: ListRequestsByMethod :many
-SELECT id, created_at, updated_at, name, method, url, content_type, body, params, auth, headers FROM requests WHERE method = ? ORDER BY created_at DESC
-`
-
-func (q *Queries) ListRequestsByMethod(ctx context.Context, method string) ([]Request, error) {
-	rows, err := q.db.QueryContext(ctx, listRequestsByMethod, method)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Request
-	for rows.Next() {
-		var i Request
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.Name,
-			&i.Method,
-			&i.Url,
-			&i.ContentType,
-			&i.Body,
-			&i.Params,
-			&i.Auth,
-			&i.Headers,
+			&i.RequestJson,
 		); err != nil {
 			return nil, err
 		}
@@ -171,50 +93,25 @@ func (q *Queries) ListRequestsByMethod(ctx context.Context, method string) ([]Re
 }
 
 const updateRequest = `-- name: UpdateRequest :one
-UPDATE requests
-SET name = ?, method = ?, url = ?, content_type = ?, body = ?,
-    params = ?, auth = ?, headers = ?, updated_at = CURRENT_TIMESTAMP
-WHERE id = ?
-RETURNING id, created_at, updated_at, name, method, url, content_type, body, params, auth, headers
+UPDATE request_blobs
+SET request_json = ?, updated_at = CURRENT_TIMESTAMP
+WHERE name = ?
+RETURNING name, created_at, updated_at, request_json
 `
 
 type UpdateRequestParams struct {
+	RequestJson interface{}
 	Name        string
-	Method      string
-	Url         string
-	ContentType sql.NullString
-	Body        sql.NullString
-	Params      sql.NullString
-	Auth        sql.NullString
-	Headers     sql.NullString
-	ID          string
 }
 
-func (q *Queries) UpdateRequest(ctx context.Context, arg UpdateRequestParams) (Request, error) {
-	row := q.db.QueryRowContext(ctx, updateRequest,
-		arg.Name,
-		arg.Method,
-		arg.Url,
-		arg.ContentType,
-		arg.Body,
-		arg.Params,
-		arg.Auth,
-		arg.Headers,
-		arg.ID,
-	)
-	var i Request
+func (q *Queries) UpdateRequest(ctx context.Context, arg UpdateRequestParams) (RequestBlob, error) {
+	row := q.db.QueryRowContext(ctx, updateRequest, arg.RequestJson, arg.Name)
+	var i RequestBlob
 	err := row.Scan(
-		&i.ID,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
-		&i.Method,
-		&i.Url,
-		&i.ContentType,
-		&i.Body,
-		&i.Params,
-		&i.Auth,
-		&i.Headers,
+		&i.RequestJson,
 	)
 	return i, err
 }

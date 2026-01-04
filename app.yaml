@@ -1,0 +1,10 @@
+command:
+  build: go build -gcflags="all=-N -l" -o ./tmp/tui.run ./cmd/cli
+  exec: ./tmp/tui.run
+watch:
+  folders:
+    - "./cmd/cli/"
+    - "./internal/tui/"
+    - "./internal/domain/"
+    - "./internal/database/"
+    - "./internal/config/"
