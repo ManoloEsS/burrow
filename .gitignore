@@ -49,6 +49,7 @@ burrow
 # .idea/
 # .vscode/
 
-# Agent sessions
-session*
 .env
+
+tmp
+

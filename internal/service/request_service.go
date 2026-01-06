@@ -12,22 +12,22 @@ import (
 type requestService struct {
 	requestRepo     *database.Database
 	config          *config.Config
-	updateCallback  func(*Response)
-	currentResponse *Response // In-memory storage
+	updateCallback  RequestUpdateCallBack
+	currentResponse *domain.Response
 }
 
-// Creates new request service module for service layer
-func NewRequestService(requestRepo *database.Database, config *config.Config) RequestService {
+func NewRequestService(requestRepo *database.Database, config *config.Config, callback RequestUpdateCallBack) RequestService {
 	return &requestService{
-		requestRepo: requestRepo,
-		config:      config,
+		requestRepo:    requestRepo,
+		config:         config,
+		updateCallback: callback,
 	}
 }
 
 // Sends http request and returns response
-func (s *requestService) SendRequest(req *domain.Request) (*Response, error) {
+func (s *requestService) SendRequest(req *domain.Request) (*domain.Response, error) {
 
-	return &Response{}, nil
+	return &domain.Response{}, nil
 }
 
 // TODO: change database request to name and json, update save request
@@ -51,11 +51,6 @@ func (s *requestService) SaveRequest(req *domain.Request) error {
 // Gets saved requests from database
 func (s *requestService) GetSavedRequests() error {
 	return nil
-}
-
-// Update ui
-func (s *requestService) SetUpdateCallback(callback func(*Response)) {
-	s.updateCallback = callback
 }
 
 func (s *requestService) ResponseStringBuilder(req *domain.Request) string {

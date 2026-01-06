@@ -8,13 +8,14 @@ import (
 
 // UIState acts as a request, server and saved requests cache
 type UIState struct {
-	CurrentRequest  *domain.Request
-	CurrentServer   service.ServerStatus
-	RequestHistory  []*domain.Request
-	CurrentResponse *service.Response // In-memory only
+	CurrentRequest        *domain.Request
+	CurrentServer         service.ServerStatus
+	RequestHistory        []*domain.Request
+	CurrentResponse       *domain.Response
+	CurrentFormFocusIndex int
+	CurrentFocused        tview.Primitive
 }
 
-// UIComponents holds the components that make up the tui
 type UIComponents struct {
 	MainLayout *tview.Flex
 	Form       *tview.Form
