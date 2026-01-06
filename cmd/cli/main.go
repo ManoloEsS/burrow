@@ -15,46 +15,47 @@ import (
 )
 
 func main() {
-	// load .env
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: Could not load .env file: %v", err)
 	}
 
-	// load and validate config
 	cfg := config.LoadFromEnv()
 	if err := cfg.Validate(); err != nil {
 		log.Fatalf("Configuration error: %v", err)
 	}
 
-	// initialize database
-	databaseInstance, err := database.NewDatabase(cfg.DbPath, cfg.DbString, cfg.DbMigrationsDir)
+	db, err := database.NewDatabase(cfg.DbPath, cfg.DbString, cfg.DbMigrationsDir)
 	if err != nil {
 		log.Fatalf("Could not initialize database: %v", err)
 	}
-	defer databaseInstance.Close()
+	defer db.Close()
 
-	setupGracefulShutdown(databaseInstance)
-	// // Initialize repository layer (mock implementation)
-	// mockRepo := repository.NewMockRepository()
-	//
-	// // Initialize service layer
-	services := service.NewServices(databaseInstance, cfg)
+	// Create empty UI to get callbacks
+	ui := tui.NewTui()
 
-	// Initialize UI layer
-	ui := tui.NewUI(services)
+	// Create services with UI callbacks
+	services := service.NewServices(db, cfg,
+		ui.UpdateOnReceiveResponse,
+		ui.UpdateOnServerStatusChange)
 
+	// Inject services into UI
+	ui.Services = services
+
+	// Initialize UI
 	if err := ui.Initialize(); err != nil {
 		log.Fatalf("Failed to initialize UI: %v", err)
 	}
+
+	// Setup graceful shutdown
+	setupShutdown(db)
 
 	// Start the application
 	if err := ui.Start(); err != nil {
 		log.Fatalf("Failed to start application: %v", err)
 	}
-	// initialize ui and run app
 }
 
-func setupGracefulShutdown(db *database.Database) {
+func setupShutdown(db *database.Database) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 

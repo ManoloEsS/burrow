@@ -10,105 +10,79 @@ import (
 	"github.com/rivo/tview"
 )
 
-// UI wraps the tview application and components for input capture, the services layer, and the UIState. It
-// also keeps track of the focused subcomponents in the form component, as well as whether the form or list
-// are focused to manage keybindings exclusive to each
-type UI struct {
-	app        *tview.Application
-	services   *service.Services
-	components *UIComponents
-	state      *UIState
-
-	// Focus tracking fields
-	currentFormFocusIndex int
-	formFocused           bool
-	listFocused           bool
+type Tui struct {
+	Ui         *tview.Application
+	Services   *service.Services
+	Components *UIComponents
+	State      *UIState
 }
 
-// Creates a new UI struct
-func NewUI(services *service.Services) *UI {
-	return &UI{
-		app:                   tview.NewApplication(),
-		services:              services,
-		state:                 &UIState{},
-		currentFormFocusIndex: 0,
-		formFocused:           false,
-		listFocused:           false,
+func NewTui() *Tui {
+	return &Tui{
+		Ui:    tview.NewApplication(),
+		State: &UIState{},
 	}
 }
 
-// Initializes the tui by creating the layout, setting up service callbacks for events, keybindings.
-// It loads and renders saved requests on start, as well as the default server status.
-func (ui *UI) Initialize() error {
-	ui.components = createTuiLayout()
-	ui.setupServiceCallbacks()
-	ui.setupKeybindings()
-	ui.loadSavedRequests()
-	ui.updateServerStatus(ui.services.ServerService.GetStatus())
+func (tui *Tui) Initialize() error {
+	tui.Components = createTuiLayout()
+	tui.setupKeybindings()
+	tui.loadSavedRequests()
+	tui.updateServerStatus(tui.Services.ServerService.GetStatus())
 
-	ui.focusForm()
+	tui.focusForm()
 
 	return nil
 }
 
-// Sets up update callbacks for each service to update the UI after a service call.
-func (ui *UI) setupServiceCallbacks() {
-	ui.services.RequestService.SetUpdateCallback(ui.onResponseReceived)
-	ui.services.ServerService.SetUpdateCallback(ui.onServerStatusChanged)
-}
-
 // Sets focus on form component to make keybindings specific to form avialable.
 // Also keeps track of subcomponent in focus when shifting focus out and back into the form component.
-func (ui *UI) focusForm() {
-	ui.formFocused = true
-	ui.listFocused = false
-	ui.focusSpecificFormComponent(ui.currentFormFocusIndex)
+func (tui *Tui) focusForm() {
+	tui.State.CurrentFocused = tui.Components.Form
+	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
 }
 
 // Sets focus on server status component input.
-func (ui *UI) focusServerInput() {
-	ui.formFocused = false
-	ui.listFocused = false
-	ui.app.SetFocus(ui.components.ServerPath)
+func (tui *Tui) focusServerInput() {
+	tui.State.CurrentFocused = tui.Components.ServerPath
+	tui.Ui.SetFocus(tui.Components.ServerPath)
 }
 
 // Sets focus on request name input for saving request to db.
-func (ui *UI) focusRequestNameInput() {
-	ui.formFocused = false
-	ui.listFocused = false
-	ui.app.SetFocus(ui.components.NameInput)
+func (tui *Tui) focusRequestNameInput() {
+	tui.State.CurrentFocused = tui.Components.NameInput
+	tui.Ui.SetFocus(tui.Components.NameInput)
 }
 
 // Sets focus on saved requests list to make specific keybindings available.
-func (ui *UI) focusRequestList() {
-	ui.formFocused = false
-	ui.listFocused = true
-	ui.app.SetFocus(ui.components.RequestList)
+func (tui *Tui) focusRequestList() {
+	tui.State.CurrentFocused = tui.Components.RequestList
+	tui.Ui.SetFocus(tui.Components.RequestList)
 }
 
 // Enables up and down navigation of subcomponents in form component.
-func (ui *UI) navigateForm(forward bool) {
-	subcompCount := ui.components.Form.GetFormItemCount()
+func (tui *Tui) navigateForm(forward bool) {
+	subcompCount := tui.Components.Form.GetFormItemCount()
 	if forward {
-		ui.currentFormFocusIndex = (ui.currentFormFocusIndex + 1) % subcompCount
+		tui.State.CurrentFormFocusIndex = (tui.State.CurrentFormFocusIndex + 1) % subcompCount
 	} else {
-		ui.currentFormFocusIndex = (ui.currentFormFocusIndex - 1 + 6) % subcompCount
+		tui.State.CurrentFormFocusIndex = (tui.State.CurrentFormFocusIndex - 1 + 6) % subcompCount
 	}
 
-	ui.focusSpecificFormComponent(ui.currentFormFocusIndex)
+	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
 }
 
 // Sets focus on specific subcomponent in form component when navigating through subcomponents.
-func (ui *UI) focusSpecificFormComponent(index int) {
-	component := ui.components.Form.GetFormItem(index)
+func (tui *Tui) focusSpecificFormComponent(index int) {
+	component := tui.Components.Form.GetFormItem(index)
 	if component != nil {
-		ui.app.SetFocus(component)
+		tui.Ui.SetFocus(component)
 	}
 }
 
 // Allows for up and down navigation in list component
-func (ui *UI) navigateList(direction int) {
-	currentList := ui.components.RequestList
+func (tui *Tui) navigateList(direction int) {
+	currentList := tui.Components.RequestList
 	currentIndex := currentList.GetCurrentItem()
 	itemCount := currentList.GetItemCount()
 
@@ -121,46 +95,44 @@ func (ui *UI) navigateList(direction int) {
 }
 
 // Loads saved requests and renders them in saved requests component
-func (ui *UI) loadSavedRequests() {
-	err := ui.services.RequestService.GetSavedRequests()
+func (tui *Tui) loadSavedRequests() {
+	err := tui.Services.RequestService.GetSavedRequests()
 	if err != nil {
 		return
 	}
 
-	ui.state.RequestHistory = nil
+	tui.State.RequestHistory = nil
 
 	// // Load requests into list
 	// for _, req := range requests {
 	// 	itemText := fmt.Sprintf("%s %s", req.Method, req.URL)
 	// 	secondaryText := req.URL
-	// 	ui.components.RequestList.AddItem(itemText, secondaryText, 0, nil)
+	// 	a.Components.RequestList.AddItem(itemText, secondaryText, 0, nil)
 	// }
 }
 
 // Callback function to render received response to response viewer
-func (ui *UI) onResponseReceived(response *service.Response) {
-	ui.app.QueueUpdateDraw(func() {
-		ui.state.CurrentResponse = response
+func (tui *Tui) UpdateOnReceiveResponse(response *domain.Response) {
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.State.CurrentResponse = response
 		responseText := fmt.Sprintf(
 			"[green]Latest Response[%d: %d]\n\n%s[-]",
 			response.RequestID,
 			response.StatusCode,
 			response.Body,
 		)
-		ui.components.ResponseView.SetText(responseText)
+		tui.Components.ResponseView.SetText(responseText)
 	})
 }
 
-// Callback function to render changes in server status
-func (ui *UI) onServerStatusChanged(status service.ServerStatus) {
-	ui.app.QueueUpdateDraw(func() {
-		ui.updateServerStatus(status)
+func (tui *Tui) UpdateOnServerStatusChange(status service.ServerStatus) {
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.updateServerStatus(status)
 	})
 }
 
-// Updates server status in ui state and renders text in server status text view
-func (ui *UI) updateServerStatus(status service.ServerStatus) {
-	ui.state.CurrentServer = status
+func (tui *Tui) updateServerStatus(status service.ServerStatus) {
+	tui.State.CurrentServer = status
 	var statusText string
 	if status.Running {
 		if strings.Contains(strings.ToLower(status.Status), "crashed") {
@@ -171,62 +143,62 @@ func (ui *UI) updateServerStatus(status service.ServerStatus) {
 	} else {
 		statusText = fmt.Sprintf("[red]%s[-]", status.Status)
 	}
-	ui.components.ServerStatus.SetText(statusText)
+	tui.Components.ServerStatus.SetText(statusText)
 }
 
 // Main keybindings configuration for tui, navigation keybindings update focus, while event keybindings
 // call handlers that perform a behavior and callbacks to update tui
-func (ui *UI) setupKeybindings() {
-	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+func (tui *Tui) setupKeybindings() {
+	tui.Ui.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		// Events
 		case tcell.KeyCtrlS:
-			go ui.handleSendRequest()
+			go tui.handleSendRequest()
 			return nil
 		case tcell.KeyCtrlQ:
-			ui.app.Stop()
+			tui.Ui.Stop()
 			return nil
 		case tcell.KeyF5:
-			go ui.handleStartServer()
+			go tui.handleStartServer()
 			return nil
 		case tcell.KeyF6:
-			go ui.handleStopServer()
+			go tui.handleStopServer()
 			return nil
 
 		// Navigation
 		case tcell.KeyCtrlF:
-			ui.focusForm()
+			tui.focusForm()
 			return nil
 		case tcell.KeyCtrlG:
-			ui.focusServerInput()
+			tui.focusServerInput()
 			return nil
 		case tcell.KeyCtrlL:
-			ui.focusRequestList()
+			tui.focusRequestList()
 			return nil
 		case tcell.KeyCtrlT:
-			ui.focusRequestNameInput()
+			tui.focusRequestNameInput()
 			return nil
 		case tcell.KeyCtrlN:
-			if ui.formFocused {
-				ui.navigateForm(true)
+			if tui.State.CurrentFocused == tui.Components.Form {
+				tui.navigateForm(true)
 			}
 			return nil
 		case tcell.KeyCtrlP:
-			if ui.formFocused {
-				ui.navigateForm(false)
+			if tui.State.CurrentFocused == tui.Components.Form {
+				tui.navigateForm(false)
 			}
 			return nil
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case 'j':
-				if ui.listFocused {
-					ui.navigateList(1)
+				if tui.State.CurrentFocused == tui.Components.RequestList {
+					tui.navigateList(1)
 					return nil
 				}
 				return event
 			case 'k':
-				if ui.listFocused {
-					ui.navigateList(-1)
+				if tui.State.CurrentFocused == tui.Components.RequestList {
+					tui.navigateList(-1)
 					return nil
 				}
 				return event
@@ -240,78 +212,78 @@ func (ui *UI) setupKeybindings() {
 }
 
 // Handler to send http requests from captured tui data.
-func (ui *UI) handleSendRequest() {
-	req := ui.getCurrentRequest()
+func (tui *Tui) handleSendRequest() {
+	req := tui.getCurrentRequest()
 
-	ui.app.QueueUpdateDraw(func() {
-		ui.components.ResponseView.SetText("[yellow]Sending request...[-]")
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.Components.ResponseView.SetText("[yellow]Sending request...[-]")
 	})
 
-	_, err := ui.services.RequestService.SendRequest(req)
+	_, err := tui.Services.RequestService.SendRequest(req)
 	if err != nil {
-		ui.app.QueueUpdateDraw(func() {
-			ui.components.ResponseView.SetText(fmt.Sprintf("[red]Error: %s[-]", err.Error()))
+		tui.Ui.QueueUpdateDraw(func() {
+			tui.Components.ResponseView.SetText(fmt.Sprintf("[red]Error: %s[-]", err.Error()))
 		})
 		return
 	}
 
-	ui.app.QueueUpdateDraw(func() {
+	tui.Ui.QueueUpdateDraw(func() {
 		itemText := fmt.Sprintf("%s %s", req.Method, req.URL)
 		secondaryText := req.URL
-		ui.components.RequestList.AddItem(itemText, secondaryText, 0, nil)
+		tui.Components.RequestList.AddItem(itemText, secondaryText, 0, nil)
 	})
 
-	ui.updateRequestHistory()
+	tui.updateRequestHistory()
 }
 
 // Handler to start a go server on specified path and update server status.
-func (ui *UI) handleStartServer() {
-	serverPath := ui.components.ServerPath.GetText()
+func (tui *Tui) handleStartServer() {
+	serverPath := tui.Components.ServerPath.GetText()
 	if serverPath == "" {
 		serverPath = "localhost:8080"
 	}
 
-	ui.app.QueueUpdateDraw(func() {
-		ui.components.ServerStatus.SetText("[yellow]Starting server...[-]")
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.Components.ServerStatus.SetText("[yellow]Starting server...[-]")
 	})
 
-	err := ui.services.ServerService.StartServer(serverPath)
+	err := tui.Services.ServerService.StartServer(serverPath)
 	if err != nil {
-		ui.app.QueueUpdateDraw(func() {
-			ui.components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to start server: %s[-]", err.Error()))
+		tui.Ui.QueueUpdateDraw(func() {
+			tui.Components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to start server: %s[-]", err.Error()))
 		})
 		return
 	}
 }
 
 // Handler to stop running server
-func (ui *UI) handleStopServer() {
-	ui.app.QueueUpdateDraw(func() {
-		ui.components.ServerStatus.SetText("[yellow]Stopping server...[-]")
+func (tui *Tui) handleStopServer() {
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.Components.ServerStatus.SetText("[yellow]Stopping server...[-]")
 	})
 
-	err := ui.services.ServerService.StopServer()
+	err := tui.Services.ServerService.StopServer()
 	if err != nil {
-		ui.app.QueueUpdateDraw(func() {
-			ui.components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to stop server: %s[-]", err.Error()))
+		tui.Ui.QueueUpdateDraw(func() {
+			tui.Components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to stop server: %s[-]", err.Error()))
 		})
 		return
 	}
 }
 
 // Captures inputs from form to create a new request ready to be saved or sent
-func (ui *UI) getCurrentRequest() *domain.Request {
-	_, method := ui.components.MethodDropdown.GetCurrentOption()
+func (tui *Tui) getCurrentRequest() *domain.Request {
+	_, method := tui.Components.MethodDropdown.GetCurrentOption()
 
-	url := ui.components.URLInput.GetText()
+	url := tui.Components.URLInput.GetText()
 
-	headersText := ui.components.HeadersText.GetText()
+	headersText := tui.Components.HeadersText.GetText()
 
-	paramsText := ui.components.ParamsText.GetText()
+	paramsText := tui.Components.ParamsText.GetText()
 
-	_, bodyType := ui.components.BodyType.GetCurrentOption()
+	_, bodyType := tui.Components.BodyType.GetCurrentOption()
 
-	body := ui.components.BodyText.GetText()
+	body := tui.Components.BodyText.GetText()
 
 	newRequest := domain.Request{}
 
@@ -322,7 +294,7 @@ func (ui *UI) getCurrentRequest() *domain.Request {
 
 	// Create basic config for URL parsing - this is a temporary solution
 
-	err = newRequest.ParseUrl(ui.services.Config, url)
+	err = newRequest.ParseUrl(tui.Services.Config, url)
 	if err != nil {
 		return &newRequest
 	}
@@ -351,17 +323,17 @@ func (ui *UI) getCurrentRequest() *domain.Request {
 }
 
 // Updates saved requests list
-func (ui *UI) updateRequestHistory() {
-	err := ui.services.RequestService.GetSavedRequests()
+func (tui *Tui) updateRequestHistory() {
+	err := tui.Services.RequestService.GetSavedRequests()
 	if err != nil {
 		return
 	}
 
-	ui.state.RequestHistory = nil
+	tui.State.RequestHistory = nil
 
 }
 
 // Starts app setting layout as root and enables mouse interactions
-func (ui *UI) Start() error {
-	return ui.app.SetRoot(ui.components.MainLayout, true).EnableMouse(true).Run()
+func (tui *Tui) Start() error {
+	return tui.Ui.SetRoot(tui.Components.MainLayout, true).EnableMouse(true).Run()
 }

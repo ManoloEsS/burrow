@@ -6,10 +6,10 @@ import (
 )
 
 type Config struct {
-	DbPath          string `json:"db_path"`
-	DefaultPort     string `json:"default_port"`
-	DbMigrationsDir string `json:"db_migrations_dir"`
-	DbString        string `json:"db_string"`
+	DbPath          string
+	DefaultPort     string
+	DbMigrationsDir string
+	DbString        string
 }
 
 func LoadFromEnv() *Config {

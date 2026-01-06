@@ -9,7 +9,7 @@ import (
 
 type serverService struct {
 	config         *config.Config
-	updateCallback func(ServerStatus)
+	updateCallback ServerUpdateCallback
 	currentStatus  ServerStatus
 	statusMutex    sync.RWMutex
 	serverCancel   chan struct{}
@@ -17,15 +17,15 @@ type serverService struct {
 	crashDetected  bool
 }
 
-// Starts module in service layer to handle server behaviors
-func NewServerService(config *config.Config) ServerService {
+func NewServerService(config *config.Config, callback ServerUpdateCallback) ServerService {
 	return &serverService{
 		currentStatus: ServerStatus{
 			Running: false,
 			Status:  "Server not running",
 		},
-		serverCancel: make(chan struct{}),
-		config:       config,
+		serverCancel:   make(chan struct{}),
+		config:         config,
+		updateCallback: callback,
 	}
 }
 
@@ -96,10 +96,6 @@ func (s *serverService) GetStatus() ServerStatus {
 	s.statusMutex.RLock()
 	defer s.statusMutex.RUnlock()
 	return s.currentStatus
-}
-
-func (s *serverService) SetUpdateCallback(callback func(ServerStatus)) {
-	s.updateCallback = callback
 }
 
 func (s *serverService) runServer(path string) {

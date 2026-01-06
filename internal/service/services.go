@@ -5,17 +5,21 @@ import (
 	"github.com/ManoloEsS/burrow/internal/database"
 )
 
-// Service layer with request and server modules
 type Services struct {
 	RequestService RequestService
 	ServerService  ServerService
 	Config         *config.Config
+	Database       *database.Database
 }
 
-// initialize service layer and modules
-func NewServices(database *database.Database, config *config.Config) *Services {
+// initialize service layer and modules with UI callbacks
+func NewServices(database *database.Database, config *config.Config,
+	requestCallback RequestUpdateCallBack,
+	serverCallback ServerUpdateCallback) *Services {
 	return &Services{
-		RequestService: NewRequestService(database, config),
-		ServerService:  NewServerService(config),
+		Config:         config,
+		Database:       database,
+		RequestService: NewRequestService(database, config, requestCallback),
+		ServerService:  NewServerService(config, serverCallback),
 	}
 }

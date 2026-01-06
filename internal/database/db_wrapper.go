@@ -15,7 +15,7 @@ import (
 )
 
 type Database struct {
-	*sql.DB
+	DB      *sql.DB
 	Queries *Queries
 	Timeout time.Duration
 }
