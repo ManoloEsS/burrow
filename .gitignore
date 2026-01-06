@@ -52,4 +52,5 @@ burrow
 .env
 
 tmp
-
+burrow.db-shm
+burrow.db-wal
