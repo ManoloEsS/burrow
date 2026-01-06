@@ -42,25 +42,21 @@ func (tui *Tui) focusForm() {
 	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
 }
 
-// Sets focus on server status component input.
 func (tui *Tui) focusServerInput() {
 	tui.State.CurrentFocused = tui.Components.ServerPath
 	tui.Ui.SetFocus(tui.Components.ServerPath)
 }
 
-// Sets focus on request name input for saving request to db.
 func (tui *Tui) focusRequestNameInput() {
 	tui.State.CurrentFocused = tui.Components.NameInput
 	tui.Ui.SetFocus(tui.Components.NameInput)
 }
 
-// Sets focus on saved requests list to make specific keybindings available.
 func (tui *Tui) focusRequestList() {
 	tui.State.CurrentFocused = tui.Components.RequestList
 	tui.Ui.SetFocus(tui.Components.RequestList)
 }
 
-// Enables up and down navigation of subcomponents in form component.
 func (tui *Tui) navigateForm(forward bool) {
 	subcompCount := tui.Components.Form.GetFormItemCount()
 	if forward {
@@ -72,7 +68,6 @@ func (tui *Tui) navigateForm(forward bool) {
 	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
 }
 
-// Sets focus on specific subcomponent in form component when navigating through subcomponents.
 func (tui *Tui) focusSpecificFormComponent(index int) {
 	component := tui.Components.Form.GetFormItem(index)
 	if component != nil {
@@ -80,7 +75,6 @@ func (tui *Tui) focusSpecificFormComponent(index int) {
 	}
 }
 
-// Allows for up and down navigation in list component
 func (tui *Tui) navigateList(direction int) {
 	currentList := tui.Components.RequestList
 	currentIndex := currentList.GetCurrentItem()
@@ -94,7 +88,6 @@ func (tui *Tui) navigateList(direction int) {
 	currentList.SetCurrentItem(newItem)
 }
 
-// Loads saved requests and renders them in saved requests component
 func (tui *Tui) loadSavedRequests() {
 	err := tui.Services.RequestService.GetSavedRequests()
 	if err != nil {
@@ -111,7 +104,6 @@ func (tui *Tui) loadSavedRequests() {
 	// }
 }
 
-// Callback function to render received response to response viewer
 func (tui *Tui) UpdateOnReceiveResponse(response *domain.Response) {
 	tui.Ui.QueueUpdateDraw(func() {
 		tui.State.CurrentResponse = response
@@ -151,7 +143,7 @@ func (tui *Tui) updateServerStatus(status service.ServerStatus) {
 func (tui *Tui) setupKeybindings() {
 	tui.Ui.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
-		// Events
+		// events
 		case tcell.KeyCtrlS:
 			go tui.handleSendRequest()
 			return nil
@@ -165,7 +157,7 @@ func (tui *Tui) setupKeybindings() {
 			go tui.handleStopServer()
 			return nil
 
-		// Navigation
+		// navigation
 		case tcell.KeyCtrlF:
 			tui.focusForm()
 			return nil
@@ -211,7 +203,6 @@ func (tui *Tui) setupKeybindings() {
 	})
 }
 
-// Handler to send http requests from captured tui data.
 func (tui *Tui) handleSendRequest() {
 	req := tui.getCurrentRequest()
 
@@ -236,7 +227,6 @@ func (tui *Tui) handleSendRequest() {
 	tui.updateRequestHistory()
 }
 
-// Handler to start a go server on specified path and update server status.
 func (tui *Tui) handleStartServer() {
 	serverPath := tui.Components.ServerPath.GetText()
 	if serverPath == "" {
@@ -256,7 +246,6 @@ func (tui *Tui) handleStartServer() {
 	}
 }
 
-// Handler to stop running server
 func (tui *Tui) handleStopServer() {
 	tui.Ui.QueueUpdateDraw(func() {
 		tui.Components.ServerStatus.SetText("[yellow]Stopping server...[-]")
@@ -271,7 +260,6 @@ func (tui *Tui) handleStopServer() {
 	}
 }
 
-// Captures inputs from form to create a new request ready to be saved or sent
 func (tui *Tui) getCurrentRequest() *domain.Request {
 	_, method := tui.Components.MethodDropdown.GetCurrentOption()
 
@@ -322,7 +310,6 @@ func (tui *Tui) getCurrentRequest() *domain.Request {
 	return &newRequest
 }
 
-// Updates saved requests list
 func (tui *Tui) updateRequestHistory() {
 	err := tui.Services.RequestService.GetSavedRequests()
 	if err != nil {
@@ -333,7 +320,6 @@ func (tui *Tui) updateRequestHistory() {
 
 }
 
-// Starts app setting layout as root and enables mouse interactions
 func (tui *Tui) Start() error {
 	return tui.Ui.SetRoot(tui.Components.MainLayout, true).EnableMouse(true).Run()
 }

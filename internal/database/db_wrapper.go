@@ -20,14 +20,11 @@ type Database struct {
 	Timeout time.Duration
 }
 
-// NewDatabase opens the DB, applies Goose migrations, and dumps schema for SQLC
 func NewDatabase(dbPath, dbString, dbMigrations string) (*Database, error) {
-	// Ensure directory exists
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("could not create database directory: %w", err)
 	}
 
-	// Open DB
 	db, err := sql.Open("sqlite3", dbString)
 	if err != nil {
 		return nil, fmt.Errorf("could not open database: %w", err)
@@ -41,7 +38,6 @@ func NewDatabase(dbPath, dbString, dbMigrations string) (*Database, error) {
 		return nil, fmt.Errorf("could not ping database: %w", err)
 	}
 
-	// Apply migrations
 	if err := goose.SetDialect("sqlite3"); err != nil {
 		return nil, fmt.Errorf("could not set goose dialect: %w", err)
 	}
@@ -49,7 +45,6 @@ func NewDatabase(dbPath, dbString, dbMigrations string) (*Database, error) {
 		return nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
-	// Dump schema
 	if err := dumpSchema(db, "sql/schema/schema.sql"); err != nil {
 		return nil, fmt.Errorf("failed to dump schema: %w", err)
 	}
@@ -64,7 +59,6 @@ func NewDatabase(dbPath, dbString, dbMigrations string) (*Database, error) {
 	}, nil
 }
 
-// dumpSchema writes current DB schema to file for sqlc usage
 func dumpSchema(db *sql.DB, path string) error {
 	rows, err := db.Query(`SELECT sql 
 FROM sqlite_master 

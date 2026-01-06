@@ -29,7 +29,6 @@ func NewServerService(config *config.Config, callback ServerUpdateCallback) Serv
 	}
 }
 
-// starts server go routine and updates ui
 func (s *serverService) StartServer(path string) error {
 	s.statusMutex.Lock()
 	defer s.statusMutex.Unlock()
@@ -59,7 +58,6 @@ func (s *serverService) StartServer(path string) error {
 	return nil
 }
 
-// Stops server instance
 func (s *serverService) StopServer() error {
 	s.statusMutex.Lock()
 	defer s.statusMutex.Unlock()
@@ -72,19 +70,15 @@ func (s *serverService) stopServerInternal() error {
 		return fmt.Errorf("server is not running")
 	}
 
-	// Cancel server goroutine
 	close(s.serverCancel)
 
-	// Wait for server to stop
 	s.serverWG.Wait()
 
-	// Update status
 	s.currentStatus = ServerStatus{
 		Running: false,
 		Status:  "Server stopped",
 	}
 
-	// Notify UI
 	if s.updateCallback != nil {
 		s.updateCallback(s.currentStatus)
 	}
@@ -121,7 +115,6 @@ func (s *serverService) handleServerCrash() {
 		Status:  "Server crashed",
 	}
 
-	// Notify UI of crash
 	if s.updateCallback != nil {
 		s.updateCallback(s.currentStatus)
 	}

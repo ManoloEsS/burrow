@@ -6,7 +6,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-// UIState acts as a request, server and saved requests cache
 type UIState struct {
 	CurrentRequest        *domain.Request
 	CurrentServer         service.ServerStatus
@@ -17,15 +16,13 @@ type UIState struct {
 }
 
 type UIComponents struct {
-	MainLayout *tview.Flex
-	Form       *tview.Form
-	// Top section
+	MainLayout   *tview.Flex
+	Form         *tview.Form
 	LogoText     *tview.TextView
 	BindingsText *tview.TextView
 	ServerStatus *tview.TextView
 	ServerPath   *tview.InputField
 
-	// Request form section
 	MethodDropdown *tview.DropDown
 	URLInput       *tview.InputField
 	HeadersText    *tview.TextArea
@@ -33,10 +30,8 @@ type UIComponents struct {
 	BodyText       *tview.TextArea
 	BodyType       *tview.DropDown
 
-	// Response section
 	ResponseView *tview.TextView
 
-	// Request list section
 	RequestList *tview.List
 	NameInput   *tview.InputField
 }

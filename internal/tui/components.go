@@ -5,22 +5,21 @@ import (
 	"github.com/rivo/tview"
 )
 
-// creates tview layout for the app
 func createTuiLayout() *UIComponents {
 	components := &UIComponents{}
 
 	topFlex := tview.NewFlex()
 
-	// Logo
+	// logo
 	components.LogoText = tview.NewTextView().SetText(
 		"  _ __                      \n ( /  )                     \n  /--< , , _   _   __ , , , \n /___/(_/_/ (_/ (_(_)(_(_/_ ",
 	).SetTextColor(tcell.ColorBlue)
 
-	// Keybindings
+	// keybindings
 	components.BindingsText = tview.NewTextView().SetText("C-f: request   | C-s: send req\nC-t: name input| C-e: start server\nC-g: path input| C-x: kill server\nC-l: saved reqs| C-r: reload server").
 		SetTextColor(tcell.ColorGray)
 
-	// Server status
+	// server status
 	serverFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
 	components.ServerPath = tview.NewInputField()
@@ -41,10 +40,10 @@ func createTuiLayout() *UIComponents {
 		AddItem(components.BindingsText, 0, 4, false).
 		AddItem(serverFlex, 0, 3, false)
 
-	// Bottom
+	// bottom
 	bottomFlex := tview.NewFlex()
 
-	// Request builder form
+	// request builder form
 	leftFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
 	components.URLInput = tview.NewInputField()
@@ -89,10 +88,9 @@ func createTuiLayout() *UIComponents {
 	components.Form = form
 	leftFlex.AddItem(form, 0, 1, false)
 
-	// Response, list and req input
+	// response, list and req input
 	rightFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
-	// Response
 	responseFlex := tview.NewFlex()
 	components.ResponseView = tview.NewTextView()
 	components.ResponseView.SetDynamicColors(true).
@@ -104,30 +102,27 @@ func createTuiLayout() *UIComponents {
 
 	bottomRightFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
-	// Request name
+	// request name
 	components.NameInput = tview.NewInputField()
 	components.NameInput.SetLabel("Request name ")
 
-	// Request list section
+	// request list section
 	components.RequestList = tview.NewList()
 	components.RequestList.ShowSecondaryText(false).
 		SetBorder(true).
 		SetTitle("Saved Requests").
 		SetTitleAlign(tview.AlignLeft)
 
-	// Add request list and server section to bottom right
+	// add request list and server section to bottom right
 	bottomRightFlex.AddItem(components.RequestList, 0, 3, false)
 	bottomRightFlex.AddItem(components.NameInput, 0, 2, false)
 
-	// Combine response and bottom right sections
 	rightFlex.AddItem(responseFlex, 0, 8, false).
 		AddItem(bottomRightFlex, 0, 2, false)
 
-	// Combine left and right for bottom section
 	bottomFlex.AddItem(leftFlex, 0, 7, false).
 		AddItem(rightFlex, 0, 9, false)
 
-	// Main container: top row and bottom section
 	components.MainLayout = tview.NewFlex().SetDirection(tview.FlexRow)
 	components.MainLayout.AddItem(topFlex, 0, 2, false).
 		AddItem(bottomFlex, 0, 10, false)

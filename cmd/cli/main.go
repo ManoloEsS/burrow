@@ -30,26 +30,20 @@ func main() {
 	}
 	defer db.Close()
 
-	// Create empty UI to get callbacks
 	ui := tui.NewTui()
 
-	// Create services with UI callbacks
 	services := service.NewServices(db, cfg,
 		ui.UpdateOnReceiveResponse,
 		ui.UpdateOnServerStatusChange)
 
-	// Inject services into UI
 	ui.Services = services
 
-	// Initialize UI
 	if err := ui.Initialize(); err != nil {
 		log.Fatalf("Failed to initialize UI: %v", err)
 	}
 
-	// Setup graceful shutdown
 	setupShutdown(db)
 
-	// Start the application
 	if err := ui.Start(); err != nil {
 		log.Fatalf("Failed to start application: %v", err)
 	}

@@ -7,7 +7,6 @@ import (
 	"github.com/ManoloEsS/burrow/internal/config"
 )
 
-// Request struct with json fields for saving into db
 type Request struct {
 	Method      string            `json:"method"`
 	URL         string            `json:"url"`

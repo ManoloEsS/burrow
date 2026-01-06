@@ -24,7 +24,6 @@ func NewRequestService(requestRepo *database.Database, config *config.Config, ca
 	}
 }
 
-// Sends http request and returns response
 func (s *requestService) SendRequest(req *domain.Request) (*domain.Response, error) {
 
 	return &domain.Response{}, nil
@@ -48,7 +47,6 @@ func (s *requestService) SaveRequest(req *domain.Request) error {
 	return nil
 }
 
-// Gets saved requests from database
 func (s *requestService) GetSavedRequests() error {
 	return nil
 }

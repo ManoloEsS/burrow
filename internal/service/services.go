@@ -12,7 +12,6 @@ type Services struct {
 	Database       *database.Database
 }
 
-// initialize service layer and modules with UI callbacks
 func NewServices(database *database.Database, config *config.Config,
 	requestCallback RequestUpdateCallBack,
 	serverCallback ServerUpdateCallback) *Services {
