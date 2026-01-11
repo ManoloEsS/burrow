@@ -1,8 +1,12 @@
 package service
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/ManoloEsS/burrow/internal/database"
@@ -25,8 +29,50 @@ func NewRequestService(requestRepo *database.Database, config *config.Config, ca
 }
 
 func (s *requestService) SendRequest(req *domain.Request) (*domain.Response, error) {
+	var bodyReader io.Reader
+	if req.Body != "" {
+		bodyReader = strings.NewReader(req.Body)
+	}
+	httpRequest, err := http.NewRequestWithContext(context.Background(), req.Method, req.URL, bodyReader)
+	if err != nil {
+		return &domain.Response{}, err
+	}
 
-	return &domain.Response{}, nil
+	client := &http.Client{
+		Timeout: time.Second * 5,
+	}
+
+	start := time.Now()
+
+	httpResp, err := client.Do(httpRequest)
+	if err != nil {
+		return &domain.Response{}, err
+	}
+
+	defer httpResp.Body.Close()
+
+	responseTime := time.Since(start)
+
+	newResp := &domain.Response{}
+
+	err = newResp.BuildResponse(httpResp)
+	if err != nil {
+		// If response building fails, still set response time and call callback
+		newResp.ResponseTime = responseTime
+		if s.updateCallback != nil {
+			s.updateCallback(newResp)
+		}
+		return newResp, err
+	}
+
+	newResp.ResponseTime = responseTime
+
+	// Call callback if it exists to notify about the response
+	if s.updateCallback != nil {
+		s.updateCallback(newResp)
+	}
+
+	return newResp, nil
 }
 
 // TODO: change database request to name and json, update save request
@@ -80,40 +126,4 @@ func mapToString(m map[string]string) string {
 		parts = append(parts, fmt.Sprintf("%s:%s", k, v))
 	}
 	return strings.Join(parts, " ")
-}
-
-func (s *requestService) BuildRequest(method, url, headers, params, bodyType, body string) (*domain.Request, error) {
-	newRequest := domain.Request{}
-
-	err := newRequest.ParseMethod(method)
-	if err != nil {
-		return &newRequest, err
-	}
-
-	err = newRequest.ParseUrl(s.config, url)
-	if err != nil {
-		return &newRequest, err
-	}
-
-	err = newRequest.ParseHeaders(headers)
-	if err != nil {
-		return &newRequest, err
-	}
-
-	err = newRequest.ParseParams(params)
-	if err != nil {
-		return &newRequest, err
-	}
-
-	err = newRequest.ParseBodyType(bodyType)
-	if err != nil {
-		return &newRequest, err
-	}
-
-	err = newRequest.ParseBody(body)
-	if err != nil {
-		return &newRequest, err
-	}
-
-	return &newRequest, nil
 }

@@ -108,8 +108,7 @@ func (tui *Tui) UpdateOnReceiveResponse(response *domain.Response) {
 	tui.Ui.QueueUpdateDraw(func() {
 		tui.State.CurrentResponse = response
 		responseText := fmt.Sprintf(
-			"[green]Latest Response[%d: %d]\n\n%s[-]",
-			response.RequestID,
+			"[green]Latest Response[%d]\n\n%s[-]",
 			response.StatusCode,
 			response.Body,
 		)
@@ -204,13 +203,13 @@ func (tui *Tui) setupKeybindings() {
 }
 
 func (tui *Tui) handleSendRequest() {
-	req := tui.getCurrentRequest()
+	tui.getCurrentRequest()
 
 	tui.Ui.QueueUpdateDraw(func() {
 		tui.Components.ResponseView.SetText("[yellow]Sending request...[-]")
 	})
 
-	_, err := tui.Services.RequestService.SendRequest(req)
+	response, err := tui.Services.RequestService.SendRequest(tui.State.CurrentRequest)
 	if err != nil {
 		tui.Ui.QueueUpdateDraw(func() {
 			tui.Components.ResponseView.SetText(fmt.Sprintf("[red]Error: %s[-]", err.Error()))
@@ -219,12 +218,9 @@ func (tui *Tui) handleSendRequest() {
 	}
 
 	tui.Ui.QueueUpdateDraw(func() {
-		itemText := fmt.Sprintf("%s %s", req.Method, req.URL)
-		secondaryText := req.URL
-		tui.Components.RequestList.AddItem(itemText, secondaryText, 0, nil)
+		//TODO: display response in text view
+		tui.Components.ResponseView.SetText(fmt.Sprintf("this is a response %s", response.Body))
 	})
-
-	tui.updateRequestHistory()
 }
 
 func (tui *Tui) handleStartServer() {
@@ -260,7 +256,7 @@ func (tui *Tui) handleStopServer() {
 	}
 }
 
-func (tui *Tui) getCurrentRequest() *domain.Request {
+func (tui *Tui) getCurrentRequest() {
 	_, method := tui.Components.MethodDropdown.GetCurrentOption()
 
 	url := tui.Components.URLInput.GetText()
@@ -275,39 +271,14 @@ func (tui *Tui) getCurrentRequest() *domain.Request {
 
 	newRequest := domain.Request{}
 
-	err := newRequest.ParseMethod(method)
-	if err != nil {
-		return &newRequest
-	}
+	_ = newRequest.BuildRequest(method, url, headersText, paramsText, bodyType, body, tui.Services.Config)
+	// if err != nil {
+	// 	//TODO: display error
+	// 	ret
+	// }
 
-	// Create basic config for URL parsing - this is a temporary solution
+	tui.State.CurrentRequest = &newRequest
 
-	err = newRequest.ParseUrl(tui.Services.Config, url)
-	if err != nil {
-		return &newRequest
-	}
-
-	err = newRequest.ParseHeaders(headersText)
-	if err != nil {
-		return &newRequest
-	}
-
-	err = newRequest.ParseParams(paramsText)
-	if err != nil {
-		return &newRequest
-	}
-
-	err = newRequest.ParseBodyType(bodyType)
-	if err != nil {
-		return &newRequest
-	}
-
-	err = newRequest.ParseBody(body)
-	if err != nil {
-		return &newRequest
-	}
-
-	return &newRequest
 }
 
 func (tui *Tui) updateRequestHistory() {

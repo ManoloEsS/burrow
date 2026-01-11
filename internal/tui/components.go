@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"log"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -86,6 +88,21 @@ func createTuiLayout() *UIComponents {
 		SetItemPadding(1)
 
 	components.Form = form
+
+	methodFormItem := form.GetFormItem(0)
+	if methodDropDown, ok := methodFormItem.(*tview.DropDown); ok {
+		components.MethodDropdown = methodDropDown
+		components.MethodDropdown.SetCurrentOption(0)
+	}
+
+	bodyFormItem := form.GetFormItem(4)
+	if bodyDropDown, ok := bodyFormItem.(*tview.DropDown); ok {
+		components.BodyType = bodyDropDown
+		components.BodyType.SetCurrentOption(0)
+	} else {
+		log.Printf("Warning: Failed to extract Body type dropdown from form")
+	}
+
 	leftFlex.AddItem(form, 0, 1, false)
 
 	// response, list and req input
