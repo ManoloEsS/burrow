@@ -90,20 +90,19 @@ func (tui *Tui) updateRequestHistory() {
 
 }
 
-func (tui *Tui) responseStringBuilder(req *domain.Response) string {
+func (tui *Tui) responseStringBuilder(resp *domain.Response) string {
 	var builder strings.Builder
 
-	builder.WriteString(fmt.Sprintf("Mock Response fo"))
-	builder.WriteString("Status: 200 OK\n\n")
-	builder.WriteString("Headers:\n")
-	builder.WriteString("  Content-Type: application/json\n")
-	builder.WriteString("  Server: MockServer/1.0\n\n")
+	builder.WriteString(fmt.Sprintf("Status: %s\n\n", resp.Status))
+	builder.WriteString(fmt.Sprintf("Response time: %s\n\n", resp.ResponseTime))
+	builder.WriteString(fmt.Sprintf("Content-Type: %s\n\n", resp.ContentType))
+	builder.WriteString(fmt.Sprintf("Content-Length: %d\n\n", resp.ContentLenght))
 
-	if req.Body != "" {
-		builder.WriteString("Echo Body:\n")
-		builder.WriteString(req.Body)
+	if resp.Body != "" {
+		builder.WriteString("Body:\n")
+		builder.WriteString(resp.Body)
 	} else {
-		builder.WriteString(`{"message": "This is a mock response", "method": " `)
+		builder.WriteString(`No body`)
 	}
 
 	return builder.String()

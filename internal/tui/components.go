@@ -63,8 +63,7 @@ func createTuiLayout() *UIComponents {
 		AddItem(components.ServerPath, 0, 1, false)
 
 	topFlex.AddItem(components.LogoText, 0, 3, false).
-		AddItem(components.BindingsText, 0, 4, false).
-		AddItem(serverFlex, 0, 3, false)
+		AddItem(components.BindingsText, 0, 4, false)
 
 	bottomFlex := tview.NewFlex()
 
@@ -81,7 +80,7 @@ func createTuiLayout() *UIComponents {
 	bottomRightFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
 	bottomRightFlex.AddItem(components.RequestList, 0, 3, false)
-	bottomRightFlex.AddItem(components.NameInput, 0, 2, false)
+	bottomRightFlex.AddItem(serverFlex, 0, 2, false)
 
 	rightFlex.AddItem(responseFlex, 0, 8, false).
 		AddItem(bottomRightFlex, 0, 2, false)
@@ -99,13 +98,23 @@ func createTuiLayout() *UIComponents {
 func (components *UIComponents) createUrlInputComponent() {
 	components.URLInput = tview.NewInputField()
 	components.URLInput.SetPlaceholder("default localhost:8080").
-		SetPlaceholderStyle(tcell.StyleDefault).
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
+		SetPlaceholderTextColor(tcell.ColorBlue).
 		SetLabel("URL ").
 		SetFieldBackgroundColor(tcell.ColorLightCoral)
 }
 
+func (components *UIComponents) createNameInputComponent() {
+	components.NameInput = tview.NewInputField()
+	components.NameInput.SetPlaceholder("name to be saved as").
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
+		SetPlaceholderTextColor(tcell.ColorBlue).
+		SetLabel("Name ").
+		SetFieldBackgroundColor(tcell.ColorLightCoral)
+}
 func (components *UIComponents) createFormAndSetup() {
 	form := tview.NewForm().
+		AddFormItem(components.NameInput).
 		AddDropDown("Method", []string{"GET", "POST", "PUT", "DELETE", "HEAD"}, 0, nil).
 		AddFormItem(components.URLInput).
 		AddFormItem(components.HeadersText).
@@ -148,9 +157,10 @@ func (components *UIComponents) createKeybindingsComponent() {
 func (components *UIComponents) createServerPathComponent() {
 	components.ServerPath = tview.NewInputField()
 	components.ServerPath.SetPlaceholder(" path/to/server").
-		SetPlaceholderStyle(tcell.StyleDefault).
 		SetLabel("server").
-		SetFieldBackgroundColor(tcell.ColorGray).
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
+		SetPlaceholderTextColor(tcell.ColorBlue).
+		SetFieldTextColor(tcell.ColorBlack).
 		SetFieldWidth(26)
 }
 
@@ -163,9 +173,9 @@ func (components *UIComponents) createServerStatusComponent() {
 func (components *UIComponents) createHeadersTextComponent() {
 	components.HeadersText = tview.NewTextArea()
 	components.HeadersText.SetPlaceholder("key:value key:value").
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
 		SetLabel("Headers").
-		SetPlaceholderStyle(tcell.StyleDefault).
-		SetSize(3, 0).
+		SetSize(2, 0).
 		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorBlue)
 }
 
@@ -174,7 +184,7 @@ func (components *UIComponents) createParamsTextComponent() {
 	components.ParamsText.SetPlaceholder("key:value key:value").
 		SetLabel("Params").
 		SetPlaceholderStyle(tcell.StyleDefault).
-		SetSize(3, 0).
+		SetSize(2, 0).
 		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorBlue)
 }
 
@@ -183,7 +193,7 @@ func (components *UIComponents) createBodyTextComponent() {
 	components.BodyText.SetPlaceholder("Your body content here").
 		SetLabel("Body").
 		SetPlaceholderStyle(tcell.StyleDefault).
-		SetSize(8, 0).
+		SetSize(20, 0).
 		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorBlue)
 }
 
@@ -193,11 +203,6 @@ func (components *UIComponents) createResponseViewComponent() {
 		SetBorder(true).
 		SetTitle("Response").
 		SetTitleAlign(tview.AlignLeft)
-}
-
-func (components *UIComponents) createNameInputComponent() {
-	components.NameInput = tview.NewInputField()
-	components.NameInput.SetLabel("Request name ")
 }
 
 func (components *UIComponents) createRequestListComponent() {

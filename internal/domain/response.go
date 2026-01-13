@@ -8,17 +8,17 @@ import (
 )
 
 type Response struct {
-	StatusCode    int
+	Status        string
 	ContentType   string
-	ContentLenght int
+	ContentLenght int64
 	Body          string
 	ResponseTime  time.Duration
 }
 
 func (resp *Response) BuildResponse(httpR *http.Response) error {
-	resp.StatusCode = httpR.StatusCode
+	resp.Status = httpR.Status
 	resp.ContentType = httpR.Header.Get("Content-Type")
-	resp.ContentLenght = int(httpR.ContentLength)
+	resp.ContentLenght = httpR.ContentLength
 
 	if httpR.Body != nil {
 		bodyBytes, err := io.ReadAll(httpR.Body)
