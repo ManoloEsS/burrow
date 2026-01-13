@@ -18,15 +18,13 @@ type httpClientService struct {
 	config      *config.Config
 }
 
-func NewHttpClientService(requestRepo *database.Database, config *config.Config) HttpClientService {
+func NewHttpClientService(requestRepo *database.Database) HttpClientService {
 	return &httpClientService{
 		requestRepo: requestRepo,
-		config:      config,
 	}
 }
 
 func (s *httpClientService) SendRequest(req *domain.Request) (*domain.Response, error) {
-	// Validate request to prevent panics and provide better error messages
 	if req.Method == "" {
 		return nil, fmt.Errorf("HTTP method is required")
 	}

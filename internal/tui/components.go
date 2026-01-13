@@ -15,6 +15,7 @@ type UIComponents struct {
 	ServerStatus *tview.TextView
 	ServerPath   *tview.InputField
 
+	NameInput      *tview.InputField
 	MethodDropdown *tview.DropDown
 	URLInput       *tview.InputField
 	HeadersText    *tview.TextArea
@@ -25,7 +26,6 @@ type UIComponents struct {
 	ResponseView *tview.TextView
 
 	RequestList *tview.List
-	NameInput   *tview.InputField
 }
 
 func createTuiLayout() *UIComponents {
@@ -128,13 +128,13 @@ func (components *UIComponents) createFormAndSetup() {
 
 	components.Form = form
 
-	methodFormItem := form.GetFormItem(0)
+	methodFormItem := form.GetFormItem(1)
 	if methodDropDown, ok := methodFormItem.(*tview.DropDown); ok {
 		components.MethodDropdown = methodDropDown
 		components.MethodDropdown.SetCurrentOption(0)
 	}
 
-	bodyFormItem := form.GetFormItem(4)
+	bodyFormItem := form.GetFormItem(5)
 	if bodyDropDown, ok := bodyFormItem.(*tview.DropDown); ok {
 		components.BodyType = bodyDropDown
 		components.BodyType.SetCurrentOption(0)

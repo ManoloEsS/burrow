@@ -30,11 +30,10 @@ func main() {
 	}
 	defer db.Close()
 
-	ui := tui.NewTui()
+	ui := tui.NewTui(cfg)
 
-	services := service.NewServices(db, cfg)
-
-	ui.Services = services
+	ui.HttpService = service.NewHttpClientService(db)
+	ui.ServerService = service.NewServerService()
 
 	if err := ui.Initialize(); err != nil {
 		log.Fatalf("Failed to initialize UI: %v", err)

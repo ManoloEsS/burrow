@@ -17,7 +17,7 @@ func (tui *Tui) handleStartServer() {
 		tui.Components.ServerStatus.SetText("[yellow]Starting server...[-]")
 	})
 
-	err := tui.Services.ServerService.StartServer(serverPath)
+	err := tui.ServerService.StartServer(serverPath)
 	if err != nil {
 		tui.Ui.QueueUpdateDraw(func() {
 			tui.Components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to start server: %s[-]", err.Error()))
@@ -31,7 +31,7 @@ func (tui *Tui) handleStopServer() {
 		tui.Components.ServerStatus.SetText("[yellow]Stopping server...[-]")
 	})
 
-	err := tui.Services.ServerService.StopServer()
+	err := tui.ServerService.StopServer()
 	if err != nil {
 		tui.Ui.QueueUpdateDraw(func() {
 			tui.Components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to stop server: %s[-]", err.Error()))

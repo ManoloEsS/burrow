@@ -15,14 +15,13 @@ type serverService struct {
 	crashDetected bool
 }
 
-func NewServerService(config *config.Config) ServerService {
+func NewServerService() ServerService {
 	return &serverService{
 		currentStatus: ServerStatus{
 			Running: false,
 			Status:  "Server not running",
 		},
 		serverCancel: make(chan struct{}),
-		config:       config,
 	}
 }
 

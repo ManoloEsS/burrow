@@ -20,7 +20,7 @@ func (tui *Tui) handleSendRequest() {
 		tui.Components.ResponseView.SetText("[yellow]Sending request...[-]")
 	})
 
-	resp, err := tui.Services.HttpClientService.SendRequest(tui.State.CurrentRequest)
+	resp, err := tui.HttpService.SendRequest(tui.State.CurrentRequest)
 	if err != nil {
 		tui.Ui.QueueUpdateDraw(func() {
 			tui.Components.ResponseView.SetText(fmt.Sprintf("[red]Error: %s[-]", err.Error()))
@@ -47,7 +47,7 @@ func (tui *Tui) getCurrentRequest() error {
 
 	newRequest := *domain.NewRequest()
 
-	err := newRequest.BuildRequest(method, url, headersText, paramsText, bodyType, body, tui.Services.Config)
+	err := newRequest.BuildRequest(method, url, headersText, paramsText, bodyType, body, tui.Config)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (tui *Tui) getCurrentRequest() error {
 }
 
 func (tui *Tui) loadSavedRequests() {
-	err := tui.Services.HttpClientService.GetSavedRequests()
+	err := tui.HttpService.GetSavedRequests()
 	if err != nil {
 		return
 	}
@@ -81,7 +81,7 @@ func (tui *Tui) updateOnReceiveResponse() {
 }
 
 func (tui *Tui) updateRequestHistory() {
-	err := tui.Services.HttpClientService.GetSavedRequests()
+	err := tui.HttpService.GetSavedRequests()
 	if err != nil {
 		return
 	}
