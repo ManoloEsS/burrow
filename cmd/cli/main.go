@@ -32,9 +32,7 @@ func main() {
 
 	ui := tui.NewTui()
 
-	services := service.NewServices(db, cfg,
-		ui.UpdateOnReceiveResponse,
-		ui.UpdateOnServerStatusChange)
+	services := service.NewServices(db, cfg)
 
 	ui.Services = services
 

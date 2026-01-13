@@ -6,19 +6,17 @@ import (
 )
 
 type Services struct {
-	RequestService RequestService
-	ServerService  ServerService
-	Config         *config.Config
-	Database       *database.Database
+	HttpClientService HttpClientService
+	ServerService     ServerService
+	Config            *config.Config
+	Database          *database.Database
 }
 
-func NewServices(database *database.Database, config *config.Config,
-	requestCallback RequestUpdateCallBack,
-	serverCallback ServerUpdateCallback) *Services {
+func NewServices(database *database.Database, config *config.Config) *Services {
 	return &Services{
-		Config:         config,
-		Database:       database,
-		RequestService: NewRequestService(database, config, requestCallback),
-		ServerService:  NewServerService(config, serverCallback),
+		Config:            config,
+		Database:          database,
+		HttpClientService: NewHttpClientService(database, config),
+		ServerService:     NewServerService(config),
 	}
 }

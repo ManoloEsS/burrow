@@ -10,10 +10,18 @@ import (
 type Request struct {
 	Method      string            `json:"method"`
 	URL         string            `json:"url"`
-	ContentType string            `json:"content-type,omitempty"`
+	ContentType map[string]string `json:"content-type,omitempty"`
 	Body        string            `json:"body,omitempty"`
 	Params      map[string]string `json:"params,omitempty"`
 	Headers     map[string]string `json:"headers,omitempty"`
+}
+
+func NewRequest() *Request {
+	return &Request{
+		ContentType: make(map[string]string),
+		Headers:     make(map[string]string),
+		Params:      make(map[string]string),
+	}
 }
 
 func (req *Request) ParseMethod(method string) error {
@@ -53,6 +61,7 @@ func (req *Request) ParseHeaders(headersStr string) error {
 		return nil
 	}
 
+	req.Headers["User-Agent"] = "Burrow/1.0 (+https://github.com/ManoloEsS/burrow)"
 	headers := strings.Fields(headersStr)
 	for _, h := range headers {
 		parsedHeader := strings.SplitN(h, ":", 2)
@@ -64,7 +73,17 @@ func (req *Request) ParseHeaders(headersStr string) error {
 }
 
 func (req *Request) ParseBodyType(bodyTypeStr string) error {
-	req.ContentType = bodyTypeStr
+	if req.ContentType == nil {
+		req.ContentType = make(map[string]string)
+	}
+
+	if bodyTypeStr == "Text" {
+		req.ContentType["Content-Type"] = "text/plain; charset=utf-8"
+	}
+	if bodyTypeStr == "JSON" {
+		req.ContentType["Content-Type"] = "application/json"
+	}
+
 	return nil
 }
 

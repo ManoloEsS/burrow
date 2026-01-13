@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//TODO: tests for all parsing methods
+
 func TestParseMethod(t *testing.T) {
 	reqParseMethodTests := []struct {
 		name         string

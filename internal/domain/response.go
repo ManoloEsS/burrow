@@ -24,7 +24,7 @@ func (resp *Response) BuildResponse(httpR *http.Response) error {
 		bodyBytes, err := io.ReadAll(httpR.Body)
 		if err != nil {
 			resp.Body = fmt.Sprintf("Error reading body: %v", err)
-			return err // Return the error so callers can handle it
+			return err
 		}
 		resp.Body = string(bodyBytes)
 		return nil
