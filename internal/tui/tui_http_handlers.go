@@ -13,6 +13,12 @@ func (tui *Tui) handleLoadRequest() {
 		tui.Components.StatusText.SetText("Populating...")
 	})
 
+	if tui.Components.RequestList.GetItemCount() < 1 {
+		tui.Ui.QueueUpdateDraw(func() {
+			tui.Components.StatusText.SetText("No saved requests")
+		})
+		return
+	}
 	index := tui.Components.RequestList.GetCurrentItem()
 	text, _ := tui.Components.RequestList.GetItemText(index)
 	textParts := strings.Split(text, "|")
@@ -35,6 +41,13 @@ func (tui *Tui) handleDeleteRequest() {
 	tui.Ui.QueueUpdateDraw(func() {
 		tui.Components.StatusText.SetText("Deleting...")
 	})
+
+	if tui.Components.RequestList.GetItemCount() < 1 {
+		tui.Ui.QueueUpdateDraw(func() {
+			tui.Components.StatusText.SetText("No saved requests")
+		})
+
+	}
 
 	index := tui.Components.RequestList.GetCurrentItem()
 	text, _ := tui.Components.RequestList.GetItemText(index)
@@ -64,7 +77,7 @@ func (tui *Tui) handleSaveRequest() {
 		return
 	}
 	if tui.State.CurrentRequest.Name == "" {
-		tui.State.CurrentRequest.Name = fmt.Sprintf("unnamed%d", len(tui.State.SavedRequests))
+		tui.State.CurrentRequest.Name = fmt.Sprintf("unnamed%d", tui.Components.RequestList.GetItemCount()+1)
 	}
 
 	tui.Ui.QueueUpdateDraw(func() {

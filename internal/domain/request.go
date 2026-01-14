@@ -58,18 +58,16 @@ func (req *Request) ParseHeaders(headersStr string) error {
 		req.Headers = make(map[string]string)
 	}
 
-	if headersStr == "" {
-		return nil
-	}
-
-	req.Headers["User-Agent"] = "Burrow/1.0 (+https://github.com/ManoloEsS/burrow)"
-	headers := strings.Fields(headersStr)
-	for _, h := range headers {
-		parsedHeader := strings.SplitN(h, ":", 2)
-		if len(parsedHeader) == 2 {
-			req.Headers[parsedHeader[0]] = parsedHeader[1]
+	if headersStr != "" {
+		headers := strings.Fields(headersStr)
+		for _, h := range headers {
+			parsedHeader := strings.SplitN(h, ":", 2)
+			if len(parsedHeader) == 2 {
+				req.Headers[parsedHeader[0]] = parsedHeader[1]
+			}
 		}
 	}
+	req.Headers["User-Agent"] = "Burrow/1.0 (+github.com/ManoloEsS/burrow)"
 	return nil
 }
 

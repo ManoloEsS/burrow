@@ -37,13 +37,6 @@ func (s *httpClientService) DeleteRequest(reqString string) error {
 }
 
 func (s *httpClientService) SendRequest(req *domain.Request) (*domain.Response, error) {
-	if req.Method == "" {
-		return nil, fmt.Errorf("HTTP method is required")
-	}
-	if req.URL == "" {
-		return nil, fmt.Errorf("URL is required")
-	}
-
 	if req.Headers == nil {
 		req.Headers = make(map[string]string)
 	}
@@ -168,10 +161,11 @@ func reqStructToHttpReq(req *domain.Request) (*http.Request, error) {
 	for key, val := range req.Headers {
 		httpRequest.Header.Add(key, val)
 	}
-	if contentType, exists := req.ContentType["Content-Type"]; exists {
-		httpRequest.Header.Add("Content-Type", contentType)
-	} else {
+
+	if req.Body == "" {
 		httpRequest.Header.Add("Content-Type", "none/none")
+	} else {
+		httpRequest.Header.Add("Content-Type", req.ContentType["Content-Type"])
 	}
 
 	return httpRequest, nil

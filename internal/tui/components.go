@@ -161,7 +161,7 @@ func (components *UIComponents) createStatusComponent() {
 }
 
 func (components *UIComponents) createKeybindingsComponent() {
-	components.BindingsText = tview.NewTextView().SetText("C-f: request   | C-s: send req\nC-t: name input| C-e: start server\nC-g: path input| C-x: kill server\nC-l: saved reqs| C-r: reload server").
+	components.BindingsText = tview.NewTextView().SetText("C-f: request   | C-s: send req\nC-t: name input| C-e: start server\nC-g: path input| C-x: kill server\nC-l: saved reqs| C-r: reload server\n\nDropdowns: j/k navigate, Enter to select").
 		SetTextColor(tcell.ColorGray)
 }
 

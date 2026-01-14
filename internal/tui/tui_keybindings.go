@@ -40,6 +40,12 @@ func (tui *Tui) setupKeybindings() {
 				tui.navigateForm(true)
 			}
 			return nil
+		case tcell.KeyCtrlU:
+			if tui.State.CurrentFocused == tui.Components.Form {
+				go tui.clear()
+				return nil
+			}
+			return nil
 		case tcell.KeyCtrlP:
 			if tui.State.CurrentFocused == tui.Components.Form {
 				tui.navigateForm(false)
@@ -51,7 +57,7 @@ func (tui *Tui) setupKeybindings() {
 				return nil
 			}
 			return nil
-		case tcell.KeyEnter:
+		case tcell.KeyCtrlO:
 			if tui.State.CurrentFocused == tui.Components.RequestList {
 				go tui.handleLoadRequest()
 				return nil
@@ -129,4 +135,16 @@ func (tui *Tui) navigateList(direction int) {
 
 	newItem := (currentIndex + direction + itemCount) % itemCount
 	currentList.SetCurrentItem(newItem)
+}
+
+func (tui *Tui) clear() {
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.Components.MethodDropdown.SetCurrentOption(0)
+		tui.Components.URLInput.SetText("")
+		tui.Components.NameInput.SetText("")
+		tui.Components.HeadersText.SetText("", true)
+		tui.Components.ParamsText.SetText("", true)
+		tui.Components.BodyType.SetCurrentOption(0)
+		tui.Components.BodyText.SetText("", true)
+	})
 }
