@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -22,6 +24,16 @@ func NewHttpClientService(requestRepo *database.Database) HttpClientService {
 	return &httpClientService{
 		requestRepo: requestRepo,
 	}
+}
+
+func (s *httpClientService) DeleteRequest(reqString string) error {
+	stringParts := strings.Split(reqString, "|")
+	err := s.requestRepo.Queries.DeleteRequest(context.Background(), strings.TrimSpace(stringParts[0]))
+	if err != nil {
+		log.Printf("could not delete request from database: %v", err)
+		return fmt.Errorf("could not delete request from database: %v", err)
+	}
+	return nil
 }
 
 func (s *httpClientService) SendRequest(req *domain.Request) (*domain.Response, error) {
@@ -73,38 +85,56 @@ func (s *httpClientService) SendRequest(req *domain.Request) (*domain.Response, 
 	return newResp, nil
 }
 
-// TODO: change database request to name and json, update save request
 func (s *httpClientService) SaveRequest(req *domain.Request) error {
-	// params := database.CreateRequestParams{
-	// 	ID:          generateID(),
-	// 	Name:        req.URL,
-	// 	Method:      req.Method,
-	// 	Url:         req.URL,
-	// 	ContentType: toNullString(req.ContentType),
-	// 	Body:        toNullString(req.Body),
-	// 	Params:      toNullString(mapToString(req.Params)),
-	// 	Headers:     toNullString(mapToString(req.Headers)),
-	// 	Auth:        sql.NullString{}, // No auth in domain.Request yet
-	// }
-	//
-	// _, err := s.requestRepo.Queries.CreateRequest(context.Background(), params)
+	jsonData, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("could not marshal request: %v", err)
+	}
+
+	requestParams := database.CreateRequestParams{
+		Name:        req.Name,
+		RequestJson: jsonData,
+	}
+	_, err = s.requestRepo.Queries.CreateRequest(context.Background(), requestParams)
+	if err != nil {
+		return fmt.Errorf("could not save request: %v", err)
+	}
+
 	return nil
 }
 
-func (s *httpClientService) GetSavedRequests() error {
-	return nil
+func (s *httpClientService) GetSavedRequests() ([]*domain.Request, error) {
+	reqsJSON, err := s.requestRepo.Queries.ListRequests(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve saved requests from database: %w", err)
+	}
+
+	var reqs []*domain.Request
+
+	for _, r := range reqsJSON {
+		request, err := RequestJSONToStruct(r.RequestJson)
+		if err != nil {
+			log.Printf("could not parse request %s: %v", r.Name, err)
+			continue
+		}
+		reqs = append(reqs, request)
+	}
+	return reqs, nil
 }
 
-func mapToString(m map[string]string) string {
-	if len(m) == 0 {
-		return ""
+func RequestJSONToStruct(jsonData interface{}) (*domain.Request, error) {
+	jsonByte, ok := jsonData.([]byte)
+	if !ok {
+		return nil, fmt.Errorf("expected []byte, got %T", jsonData)
 	}
 
-	var parts []string
-	for k, v := range m {
-		parts = append(parts, fmt.Sprintf("%s:%s", k, v))
+	var req domain.Request
+	err := json.Unmarshal(jsonByte, &req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
 	}
-	return strings.Join(parts, " ")
+
+	return &req, nil
 }
 
 func addParams(params map[string]string, url string) string {
@@ -124,7 +154,6 @@ func addParams(params map[string]string, url string) string {
 }
 
 func reqStructToHttpReq(req *domain.Request) (*http.Request, error) {
-
 	var bodyReader io.Reader
 	if req.Body != "" {
 		bodyReader = strings.NewReader(req.Body)
@@ -142,7 +171,7 @@ func reqStructToHttpReq(req *domain.Request) (*http.Request, error) {
 	if contentType, exists := req.ContentType["Content-Type"]; exists {
 		httpRequest.Header.Add("Content-Type", contentType)
 	} else {
-		httpRequest.Header.Add("Content-Type", "text/plain; charset=utf-8")
+		httpRequest.Header.Add("Content-Type", "none/none")
 	}
 
 	return httpRequest, nil

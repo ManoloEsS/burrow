@@ -9,7 +9,7 @@ import (
 type UIState struct {
 	CurrentRequest        *domain.Request
 	CurrentServer         service.ServerStatus
-	RequestHistory        []*domain.Request
+	SavedRequests         []*domain.Request
 	CurrentResponse       *domain.Response
 	CurrentFormFocusIndex int
 	CurrentFocused        tview.Primitive

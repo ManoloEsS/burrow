@@ -11,13 +11,14 @@ type ServerStatus struct {
 }
 
 type HttpClientService interface {
-	SendRequest(req *domain.Request) (*domain.Response, error)
-	SaveRequest(req *domain.Request) error
-	GetSavedRequests() error
+	SendRequest(*domain.Request) (*domain.Response, error)
+	SaveRequest(*domain.Request) error
+	DeleteRequest(string) error
+	GetSavedRequests() ([]*domain.Request, error)
 }
 
 type ServerService interface {
-	StartServer(path string) error
+	StartServer(string) error
 	StopServer() error
 	GetStatus() ServerStatus
 }

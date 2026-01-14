@@ -8,6 +8,7 @@ import (
 )
 
 type Request struct {
+	Name        string            `json:"name"`
 	Method      string            `json:"method"`
 	URL         string            `json:"url"`
 	ContentType map[string]string `json:"content-type,omitempty"`
@@ -112,8 +113,18 @@ func (req *Request) ParseParams(paramsStr string) error {
 	return nil
 }
 
-func (req *Request) BuildRequest(method, url, headers, params, bodyType, body string, cfg *config.Config) error {
-	err := req.ParseMethod(method)
+func (req *Request) ParseName(nameStr string) error {
+	req.Name = strings.ToLower(nameStr)
+
+	return nil
+}
+
+func (req *Request) BuildRequest(name, method, url, headers, params, bodyType, body string, cfg *config.Config) error {
+	err := req.ParseName(name)
+	if err != nil {
+		return err
+	}
+	err = req.ParseMethod(method)
 	if err != nil {
 		return err
 	}

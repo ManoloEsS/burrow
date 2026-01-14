@@ -15,7 +15,6 @@ type UIComponents struct {
 	ServerStatus *tview.TextView
 	ServerPath   *tview.InputField
 
-	NameInput      *tview.InputField
 	MethodDropdown *tview.DropDown
 	URLInput       *tview.InputField
 	HeadersText    *tview.TextArea
@@ -26,6 +25,8 @@ type UIComponents struct {
 	ResponseView *tview.TextView
 
 	RequestList *tview.List
+	NameInput   *tview.InputField
+	StatusText  *tview.TextView
 }
 
 func createTuiLayout() *UIComponents {
@@ -55,12 +56,15 @@ func createTuiLayout() *UIComponents {
 
 	components.createFormAndSetup()
 
+	components.createStatusComponent()
+
 	topFlex := tview.NewFlex()
 
 	serverFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
 	serverFlex.AddItem(components.ServerStatus, 0, 1, false).
-		AddItem(components.ServerPath, 0, 1, false)
+		AddItem(components.ServerPath, 0, 1, false).
+		AddItem(components.StatusText, 0, 1, false)
 
 	topFlex.AddItem(components.LogoText, 0, 3, false).
 		AddItem(components.BindingsText, 0, 4, false)
@@ -112,11 +116,12 @@ func (components *UIComponents) createNameInputComponent() {
 		SetLabel("Name ").
 		SetFieldBackgroundColor(tcell.ColorLightCoral)
 }
+
 func (components *UIComponents) createFormAndSetup() {
 	form := tview.NewForm().
-		AddFormItem(components.NameInput).
 		AddDropDown("Method", []string{"GET", "POST", "PUT", "DELETE", "HEAD"}, 0, nil).
 		AddFormItem(components.URLInput).
+		AddFormItem(components.NameInput).
 		AddFormItem(components.HeadersText).
 		AddFormItem(components.ParamsText).
 		AddDropDown("Body", []string{"Text", "JSON"}, 0, nil).
@@ -128,7 +133,7 @@ func (components *UIComponents) createFormAndSetup() {
 
 	components.Form = form
 
-	methodFormItem := form.GetFormItem(1)
+	methodFormItem := form.GetFormItem(0)
 	if methodDropDown, ok := methodFormItem.(*tview.DropDown); ok {
 		components.MethodDropdown = methodDropDown
 		components.MethodDropdown.SetCurrentOption(0)
@@ -143,10 +148,16 @@ func (components *UIComponents) createFormAndSetup() {
 	}
 
 }
+
 func (components *UIComponents) createLogoComponent() {
 	components.LogoText = tview.NewTextView().SetText(
 		"  _ __                      \n ( /  )                     \n  /--< , , _   _   __ , , , \n /___/(_/_/ (_/ (_(_)(_(_/_ ",
 	).SetTextColor(tcell.ColorBlue)
+}
+
+func (components *UIComponents) createStatusComponent() {
+	components.StatusText = tview.NewTextView().SetText("Ready!").
+		SetTextColor(tcell.ColorBlue)
 }
 
 func (components *UIComponents) createKeybindingsComponent() {
@@ -160,7 +171,7 @@ func (components *UIComponents) createServerPathComponent() {
 		SetLabel("server").
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
 		SetPlaceholderTextColor(tcell.ColorBlue).
-		SetFieldTextColor(tcell.ColorBlack).
+		SetFieldBackgroundColor(tcell.ColorGray).
 		SetFieldWidth(26)
 }
 
@@ -173,28 +184,28 @@ func (components *UIComponents) createServerStatusComponent() {
 func (components *UIComponents) createHeadersTextComponent() {
 	components.HeadersText = tview.NewTextArea()
 	components.HeadersText.SetPlaceholder("key:value key:value").
-		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey).Foreground(tcell.ColorBlue)).
 		SetLabel("Headers").
 		SetSize(2, 0).
-		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorBlue)
+		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorLightCoral)
 }
 
 func (components *UIComponents) createParamsTextComponent() {
 	components.ParamsText = tview.NewTextArea()
 	components.ParamsText.SetPlaceholder("key:value key:value").
 		SetLabel("Params").
-		SetPlaceholderStyle(tcell.StyleDefault).
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey).Foreground(tcell.ColorBlue)).
 		SetSize(2, 0).
-		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorBlue)
+		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorLightCoral)
 }
 
 func (components *UIComponents) createBodyTextComponent() {
 	components.BodyText = tview.NewTextArea()
 	components.BodyText.SetPlaceholder("Your body content here").
 		SetLabel("Body").
-		SetPlaceholderStyle(tcell.StyleDefault).
-		SetSize(20, 0).
-		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorBlue)
+		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey).Foreground(tcell.ColorBlue)).
+		SetSize(8, 0).
+		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorLightCoral)
 }
 
 func (components *UIComponents) createResponseViewComponent() {
