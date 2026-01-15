@@ -66,8 +66,8 @@ func createTuiLayout() *UIComponents {
 		AddItem(components.ServerPath, 0, 1, false).
 		AddItem(components.StatusText, 0, 1, false)
 
-	topFlex.AddItem(components.LogoText, 0, 3, false).
-		AddItem(components.BindingsText, 0, 4, false)
+	topFlex.AddItem(components.LogoText, 0, 2, false).
+		AddItem(components.BindingsText, 0, 5, false)
 
 	bottomFlex := tview.NewFlex()
 
@@ -161,18 +161,18 @@ func (components *UIComponents) createStatusComponent() {
 }
 
 func (components *UIComponents) createKeybindingsComponent() {
-	components.BindingsText = tview.NewTextView().SetText("C-f: request   | C-s: send req\nC-t: name input| C-e: start server\nC-g: path input| C-x: kill server\nC-l: saved reqs| C-r: reload server\n\nDropdowns: j/k navigate, Enter to select").
+	components.BindingsText = tview.NewTextView().
+		SetDynamicColors(true).
+		SetText("[white]Request form      | Saved req list      | Server            | Navigation[-]\nC-f: focus form   [white]|[-] C-l: focus saved req[white]|[-] C-g: focus input  [white]|[-] C-n, C-p: form up/down\nC-s: send req     [white]|[-] C-o: load request   [white]|[-] C-r: start/restart[white]|[-] j/k: list up/down\nC-a: save request [white]|[-] C-d: delete req     [white]|[-] C-x: kill server  [white]|[-]").
 		SetTextColor(tcell.ColorGray)
 }
 
 func (components *UIComponents) createServerPathComponent() {
 	components.ServerPath = tview.NewInputField()
-	components.ServerPath.SetPlaceholder(" path/to/server").
-		SetLabel("server").
+	components.ServerPath.SetPlaceholder("path/to/server").
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
 		SetPlaceholderTextColor(tcell.ColorBlue).
-		SetFieldBackgroundColor(tcell.ColorGray).
-		SetFieldWidth(26)
+		SetFieldBackgroundColor(tcell.ColorLightCoral)
 }
 
 func (components *UIComponents) createServerStatusComponent() {
@@ -204,7 +204,7 @@ func (components *UIComponents) createBodyTextComponent() {
 	components.BodyText.SetPlaceholder("Your body content here").
 		SetLabel("Body").
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey).Foreground(tcell.ColorBlue)).
-		SetSize(8, 0).
+		SetSize(10, 0).
 		SetFormAttributes(8, tcell.ColorYellow, tcell.ColorBlue, tcell.ColorBlack, tcell.ColorLightCoral)
 }
 

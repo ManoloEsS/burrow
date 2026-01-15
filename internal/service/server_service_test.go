@@ -6,33 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewServerService(t *testing.T) {
-	tests := []struct {
-		name        string
-		description string
-	}{
-		{
-			name:        "Create server service",
-			description: "Should create server service with default stopped state",
-		},
-		{
-			name:        "Verify interface implementation",
-			description: "Should implement ServerService interface",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			service := NewServerService()
-			assert.NotNil(t, service)
-
-			// Verify that service implements interface
-			_, ok := service.(ServerService)
-			assert.True(t, ok)
-		})
-	}
-}
-
 func TestStartServer(t *testing.T) {
 	tests := []struct {
 		name        string

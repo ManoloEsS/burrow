@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/ManoloEsS/burrow/internal/config"
-	"github.com/ManoloEsS/burrow/internal/domain"
-	"github.com/ManoloEsS/burrow/internal/service"
 	"github.com/stretchr/testify/assert"
 )
 
