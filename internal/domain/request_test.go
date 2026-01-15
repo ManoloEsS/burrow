@@ -9,22 +9,49 @@ import (
 
 func TestParseMethod(t *testing.T) {
 	tests := []struct {
-		name        string
-		input       string
-		expected    string
-		description string
+		name     string
+		input    string
+		expected string
 	}{
 		{
-			name:        "Parse GET method",
-			input:       "get",
-			expected:    "GET",
-			description: "Should convert lowercase GET to uppercase",
+			name:     "Parse GET method",
+			input:    "get",
+			expected: "GET",
 		},
 		{
-			name:        "Parse POST method",
-			input:       "post",
-			expected:    "POST",
-			description: "Should convert lowercase POST to uppercase",
+			name:     "Parse POST method",
+			input:    "post",
+			expected: "POST",
+		},
+		{
+			name:     "Parse PUT method",
+			input:    "put",
+			expected: "PUT",
+		},
+		{
+			name:     "Parse DELETE method",
+			input:    "delete",
+			expected: "DELETE",
+		},
+		{
+			name:     "Parse HEAD method",
+			input:    "head",
+			expected: "HEAD",
+		},
+		{
+			name:     "Parse undefined method",
+			input:    "undefined",
+			expected: "UNDEFINED",
+		},
+		{
+			name:     "Parse GET uppercase method",
+			input:    "GET",
+			expected: "GET",
+		},
+		{
+			name:     "Parse GET method with trailing space",
+			input:    "  get  ",
+			expected: "GET",
 		},
 	}
 
@@ -40,22 +67,49 @@ func TestParseMethod(t *testing.T) {
 
 func TestParseUrl(t *testing.T) {
 	tests := []struct {
-		name        string
-		input       string
-		expected    string
-		description string
+		name     string
+		input    string
+		expected string
 	}{
 		{
-			name:        "Parse domain without protocol",
-			input:       "example.com",
-			expected:    "https://example.com",
-			description: "Should add HTTPS protocol to domain",
+			name:     "Parse domain without protocol",
+			input:    "example.com",
+			expected: "https://example.com",
 		},
 		{
-			name:        "Parse localhost with port",
-			input:       "localhost:3000",
-			expected:    "https://localhost:3000",
-			description: "Should preserve port specification",
+			name:     "Parse localhost with port",
+			input:    "localhost:3000",
+			expected: "http://localhost:3000",
+		},
+		{
+			name:     "Parse domain with http protocol",
+			input:    "http://example.com",
+			expected: "http://example.com",
+		},
+		{
+			name:     "Parse domain with https protocol",
+			input:    "https://example.com",
+			expected: "https://example.com",
+		},
+		{
+			name:     "Parse port",
+			input:    ":3000",
+			expected: "http://localhost:3000",
+		},
+		{
+			name:     "Parse empty string",
+			input:    "",
+			expected: "http://localhost:8080",
+		},
+		{
+			name:     "Parse invalid port syntax",
+			input:    "3000",
+			expected: "https://3000",
+		},
+		{
+			name:     "Parse prefix localhost:",
+			input:    "localhost:3000",
+			expected: "http://localhost:3000",
 		},
 	}
 
@@ -75,16 +129,27 @@ func TestParseHeaders(t *testing.T) {
 		name        string
 		input       string
 		description string
+		expected    map[string]string
 	}{
 		{
-			name:        "Parse JSON headers",
-			input:       "Content-Type:application/json Authorization:Bearer:token",
-			description: "Should parse multiple headers with colons",
+			name:     "Parse JSON headers",
+			input:    "Content-Type:application/json, Authorization:Bearer token",
+			expected: map[string]string{"Content-Type": "application/json", "Authorization": "Bearer token", "User-Agent": "Burrow/1.0.0(github.com/ManoloEsS/burrow)"},
 		},
 		{
-			name:        "Parse simple headers",
-			input:       "Accept:text/plain",
-			description: "Should parse headers without special characters",
+			name:     "Parse simple headers",
+			input:    "Accept:text/plain",
+			expected: map[string]string{"Accept": "text/plain", "User-Agent": "Burrow/1.0.0(github.com/ManoloEsS/burrow)"},
+		},
+		{
+			name:     "Parse simple headers trailing comma",
+			input:    "Accept:text/plain,",
+			expected: map[string]string{"Accept": "text/plain", "User-Agent": "Burrow/1.0.0(github.com/ManoloEsS/burrow)"},
+		},
+		{
+			name:     "Parse simple headers trailing comma and space",
+			input:    "Accept:text/plain, ",
+			expected: map[string]string{"Accept": "text/plain", "User-Agent": "Burrow/1.0.0(github.com/ManoloEsS/burrow)"},
 		},
 	}
 
@@ -93,7 +158,8 @@ func TestParseHeaders(t *testing.T) {
 			req := &Request{}
 			err := req.ParseHeaders(tt.input)
 			assert.NoError(t, err)
-			assert.Equal(t, "Burrow/1.0 (+https://github.com/ManoloEsS/burrow)", req.Headers["User-Agent"])
+			assert.Equal(t, tt.expected, req.Headers)
+
 		})
 	}
 }
@@ -133,45 +199,68 @@ func TestParseBody(t *testing.T) {
 	tests := []struct {
 		name        string
 		input       string
-		description string
+		bodyType    string
+		expectError bool
 	}{
 		{
 			name:        "Parse JSON body",
-			input:       `{"key": "value"}`,
-			description: "Should parse JSON body content",
+			input:       "{\"key\": \"value\"}",
+			bodyType:    "JSON",
+			expectError: false,
 		},
 		{
 			name:        "Parse text body",
 			input:       "simple text body",
-			description: "Should parse plain text body content",
+			bodyType:    "Text",
+			expectError: false,
+		},
+		{
+			name:        "Parse invalid JSON body",
+			input:       "{\"key\": \"value}",
+			bodyType:    "JSON",
+			expectError: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := &Request{}
-			err := req.ParseBody(tt.input)
-			assert.NoError(t, err)
-			assert.Equal(t, tt.input, req.Body)
+			err := req.ParseBody(tt.input, tt.bodyType)
+			if tt.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tt.input, req.Body)
+
+			}
 		})
 	}
 }
 
 func TestParseParams(t *testing.T) {
 	tests := []struct {
-		name        string
-		input       string
-		description string
+		name     string
+		input    string
+		expected map[string]string
 	}{
 		{
-			name:        "Parse URL parameters",
-			input:       "param1:value1 param2:value2",
-			description: "Should parse multiple parameters",
+			name:     "Parse single param",
+			input:    "param1:value1",
+			expected: map[string]string{"param1": "value1"},
 		},
 		{
-			name:        "Parse API key parameters",
-			input:       "api_key:12345 limit:25",
-			description: "Should parse API configuration parameters",
+			name:     "Parse multiple params",
+			input:    "param1:value1, param2:value2",
+			expected: map[string]string{"param1": "value1", "param2": "value2"},
+		},
+		{
+			name:     "Parse simple params trailing comma",
+			input:    "param1:value1, param2:value2,",
+			expected: map[string]string{"param1": "value1", "param2": "value2"},
+		},
+		{
+			name:     "Parse simple params trailing comma and space",
+			input:    "param1:value1, param2:value2,  ",
+			expected: map[string]string{"param1": "value1", "param2": "value2"},
 		},
 	}
 
@@ -180,29 +269,32 @@ func TestParseParams(t *testing.T) {
 			req := &Request{}
 			err := req.ParseParams(tt.input)
 			assert.NoError(t, err)
-			assert.NotEmpty(t, req.Params)
+			assert.Equal(t, tt.expected, req.Params)
+
 		})
 	}
 }
 
 func TestParseName(t *testing.T) {
 	tests := []struct {
-		name        string
-		input       string
-		expected    string
-		description string
+		name     string
+		input    string
+		expected string
 	}{
 		{
-			name:        "Parse camel case name",
-			input:       "MyRequest",
-			expected:    "myrequest",
-			description: "Should convert camel case to lowercase",
+			name:     "Parse camel case name",
+			input:    "MyRequest",
+			expected: "myrequest",
 		},
 		{
-			name:        "Parse spaced name",
-			input:       "Test Request Name",
-			expected:    "test request name",
-			description: "Should preserve spaces and lowercase",
+			name:     "Parse spaced name",
+			input:    "Test Request Name",
+			expected: "test request name",
+		},
+		{
+			name:     "Parse empty name",
+			input:    "",
+			expected: "",
 		},
 	}
 
@@ -212,39 +304,6 @@ func TestParseName(t *testing.T) {
 			err := req.ParseName(tt.input)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, req.Name)
-		})
-	}
-}
-
-func TestBuildRequest(t *testing.T) {
-	tests := []struct {
-		name        string
-		description string
-	}{
-		{
-			name:        "Build JSON request",
-			description: "Should build request with JSON body type",
-		},
-		{
-			name:        "Build form request",
-			description: "Should build request with form data",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			req := NewRequest()
-			cfg := &config.Config{DefaultPort: "8080"}
-			bodyType := "JSON"
-			if tt.name == "Build form request" {
-				bodyType = "FORM"
-			}
-			err := req.BuildRequest("test", "GET", "example.com", "Accept:application/json", "param:value", bodyType, "test body", cfg)
-			assert.NoError(t, err)
-			assert.Equal(t, "test", req.Name)
-			assert.Equal(t, "GET", req.Method)
-			assert.Equal(t, "https://example.com", req.URL)
-			assert.NotNil(t, req.ContentType["Content-Type"])
 		})
 	}
 }

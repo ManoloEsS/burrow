@@ -16,7 +16,7 @@ func TestRequestJSONToStruct(t *testing.T) {
 	}{
 		{
 			name:        "Valid JSON request",
-			jsonData:    `{"name":"test","method":"GET","url":"http://example.com","body":"test body"}`,
+			jsonData:    "{\"name\":\"test\",\"method\":\"GET\",\"url\":\"http://example.com\",\"body\":\"test body\"}",
 			expectError: false,
 			description: "Should parse valid JSON request correctly",
 		},
@@ -30,7 +30,7 @@ func TestRequestJSONToStruct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, err := RequestJSONToStruct(tt.jsonData)
+			req, err := requestJSONToStruct([]byte(tt.jsonData))
 
 			if tt.expectError {
 				assert.Error(t, err)
@@ -47,52 +47,12 @@ func TestRequestJSONToStruct(t *testing.T) {
 	}
 }
 
-func TestMapToString(t *testing.T) {
-	tests := []struct {
-		name         string
-		inputMap     map[string]string
-		expectedSubs []string
-		description  string
-	}{
-		{
-			name: "Multiple headers",
-			inputMap: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer token",
-			},
-			expectedSubs: []string{"Content-Type:application/json", "Authorization:Bearer token"},
-			description:  "Should convert map with multiple items to string",
-		},
-		{
-			name:         "Empty map",
-			inputMap:     map[string]string{},
-			expectedSubs: []string{""},
-			description:  "Should return empty string for empty map",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := mapToString(tt.inputMap)
-
-			for _, expectedSub := range tt.expectedSubs {
-				if expectedSub == "" {
-					assert.Equal(t, "", result)
-				} else {
-					assert.Contains(t, result, expectedSub)
-				}
-			}
-		})
-	}
-}
-
 func TestAddParams(t *testing.T) {
 	tests := []struct {
-		name         string
-		params       map[string]string
-		url          string
-		expectedSubs []string
-		description  string
+		name           string
+		params         map[string]string
+		url            string
+		expectedResult string
 	}{
 		{
 			name: "URL with parameters",
@@ -100,26 +60,29 @@ func TestAddParams(t *testing.T) {
 				"param1": "value1",
 				"param2": "value2",
 			},
-			url:          "http://example.com",
-			expectedSubs: []string{"param1=value1", "param2=value2", "?", "&"},
-			description:  "Should add parameters to URL correctly",
+			url:            "http://example.com",
+			expectedResult: "http://example.com?param1=value1&param2=value2",
 		},
 		{
-			name:         "Empty parameters",
-			params:       map[string]string{},
-			url:          "http://example.com",
-			expectedSubs: []string{"http://example.com"},
-			description:  "Should return original URL when no parameters",
+			name:           "Empty parameters",
+			params:         map[string]string{},
+			url:            "http://example.com",
+			expectedResult: "http://example.com",
+		},
+		{
+			name: "URL with single parameter",
+			params: map[string]string{
+				"param1": "value1",
+			},
+			url:            "http://example.com",
+			expectedResult: "http://example.com?param1=value1",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := addParams(tt.params, tt.url)
-
-			for _, expectedSub := range tt.expectedSubs {
-				assert.Contains(t, result, expectedSub)
-			}
+			assert.Equal(t, tt.expectedResult, result)
 		})
 	}
 }
@@ -147,7 +110,6 @@ func TestReqStructToHttpReq(t *testing.T) {
 			},
 			expectError:  false,
 			expectedSubs: []string{"POST", "http://example.com", "application/json"},
-			description:  "Should create HTTP request with body and headers",
 		},
 		{
 			name: "GET request without body",
@@ -158,7 +120,6 @@ func TestReqStructToHttpReq(t *testing.T) {
 			},
 			expectError:  false,
 			expectedSubs: []string{"GET", "http://example.com"},
-			description:  "Should create GET request without body",
 		},
 	}
 
@@ -177,7 +138,7 @@ func TestReqStructToHttpReq(t *testing.T) {
 					if expectedSub == tt.request.Method {
 						assert.Equal(t, tt.request.Method, httpReq.Method)
 					} else if expectedSub == tt.request.URL {
-						assert.Equal(t, tt.request.URL, httpReq.URL.String())
+						assert.Equal(t, tt.request.URL, httpReq.URL)
 					} else {
 						assert.Contains(t, httpReq.Header.Get("Content-Type"), expectedSub)
 					}

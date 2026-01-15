@@ -20,9 +20,13 @@ func (tui *Tui) handleLoadRequest() {
 		return
 	}
 	index := tui.Components.RequestList.GetCurrentItem()
+
 	text, _ := tui.Components.RequestList.GetItemText(index)
+
 	textParts := strings.Split(text, "|")
+
 	name := strings.TrimSpace(textParts[0])
+
 	for _, request := range tui.State.SavedRequests {
 		if request.Name == name {
 			tui.Ui.QueueUpdateDraw(func() {
@@ -46,6 +50,7 @@ func (tui *Tui) handleDeleteRequest() {
 		tui.Ui.QueueUpdateDraw(func() {
 			tui.Components.StatusText.SetText("No saved requests")
 		})
+		return
 
 	}
 
@@ -97,7 +102,7 @@ func (tui *Tui) handleSaveRequest() {
 	})
 
 	tui.Ui.QueueUpdateDraw(func() {
-		tui.Components.StatusText.SetText("Ready!")
+		tui.Components.StatusText.SetText("Request Saved")
 	})
 
 }
@@ -249,7 +254,9 @@ func mapToString(m map[string]string) string {
 
 	var parts []string
 	for k, v := range m {
-		parts = append(parts, fmt.Sprintf("%s:%s", k, v))
+		if k != "User-Agent" {
+			parts = append(parts, fmt.Sprintf("%s:%s", k, v))
+		}
 	}
-	return strings.Join(parts, " ")
+	return strings.Join(parts, ", ")
 }

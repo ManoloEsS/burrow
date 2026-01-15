@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -29,7 +30,7 @@ func (req *Request) ParseMethod(method string) error {
 	if method == "" {
 		return errors.New("method required for http request")
 	}
-	correctMethod := strings.ToUpper(method)
+	correctMethod := strings.ToUpper(strings.TrimSpace(method))
 	req.Method = correctMethod
 	return nil
 }
@@ -49,6 +50,11 @@ func (req *Request) ParseUrl(cfg *config.Config, url string) error {
 		return nil
 	}
 
+	if strings.HasPrefix(url, "localhost:") {
+		req.URL = "http://" + url
+		return nil
+	}
+
 	req.URL = "https://" + url
 	return nil
 }
@@ -59,15 +65,16 @@ func (req *Request) ParseHeaders(headersStr string) error {
 	}
 
 	if headersStr != "" {
-		headers := strings.Fields(headersStr)
+		headers := strings.Split(headersStr, ",")
 		for _, h := range headers {
-			parsedHeader := strings.SplitN(h, ":", 2)
+			trimmedHeader := strings.TrimSpace(h)
+			parsedHeader := strings.SplitN(trimmedHeader, ":", 2)
 			if len(parsedHeader) == 2 {
 				req.Headers[parsedHeader[0]] = parsedHeader[1]
 			}
 		}
 	}
-	req.Headers["User-Agent"] = "Burrow/1.0 (+github.com/ManoloEsS/burrow)"
+	req.Headers["User-Agent"] = "Burrow/1.0.0(github.com/ManoloEsS/burrow)"
 	return nil
 }
 
@@ -86,9 +93,18 @@ func (req *Request) ParseBodyType(bodyTypeStr string) error {
 	return nil
 }
 
-func (req *Request) ParseBody(body string) error {
-	//TODO: add json functionality
-	req.Body = body
+func (req *Request) ParseBody(body, bodyTypeStr string) error {
+	if bodyTypeStr == "JSON" {
+		if json.Valid([]byte(body)) {
+			req.Body = body
+			return nil
+		}
+		return errors.New("invalid JSON string")
+	}
+	if bodyTypeStr == "Text" {
+		req.Body = body
+		return nil
+	}
 	return nil
 }
 
@@ -101,9 +117,10 @@ func (req *Request) ParseParams(paramsStr string) error {
 		return nil
 	}
 
-	params := strings.Fields(paramsStr)
+	params := strings.Split(paramsStr, ",")
 	for _, p := range params {
-		parsedParams := strings.SplitN(p, ":", 2)
+		trimmedParams := strings.TrimSpace(p)
+		parsedParams := strings.SplitN(trimmedParams, ":", 2)
 		if len(parsedParams) == 2 {
 			req.Params[parsedParams[0]] = parsedParams[1]
 		}
@@ -112,6 +129,9 @@ func (req *Request) ParseParams(paramsStr string) error {
 }
 
 func (req *Request) ParseName(nameStr string) error {
+	if nameStr == "" {
+		return nil
+	}
 	req.Name = strings.ToLower(nameStr)
 
 	return nil
@@ -147,7 +167,7 @@ func (req *Request) BuildRequest(name, method, url, headers, params, bodyType, b
 		return err
 	}
 
-	err = req.ParseBody(body)
+	err = req.ParseBody(body, bodyType)
 	if err != nil {
 		return err
 	}

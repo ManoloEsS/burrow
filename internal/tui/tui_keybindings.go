@@ -5,7 +5,7 @@ import "github.com/gdamore/tcell/v2"
 func (tui *Tui) setupKeybindings() {
 	tui.Ui.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
-		// events
+		// handlers
 		case tcell.KeyCtrlS:
 			go tui.handleSendRequest()
 			return nil
@@ -20,6 +20,24 @@ func (tui *Tui) setupKeybindings() {
 			return nil
 		case tcell.KeyF6:
 			go tui.handleStopServer()
+			return nil
+		case tcell.KeyCtrlD:
+			if tui.State.CurrentFocused == tui.Components.RequestList {
+				go tui.handleDeleteRequest()
+				return nil
+			}
+			return nil
+		case tcell.KeyCtrlO:
+			if tui.State.CurrentFocused == tui.Components.RequestList {
+				go tui.handleLoadRequest()
+				return nil
+			}
+			return nil
+		case tcell.KeyCtrlU:
+			if tui.State.CurrentFocused == tui.Components.Form {
+				go tui.clear()
+				return nil
+			}
 			return nil
 
 		// navigation
@@ -40,27 +58,9 @@ func (tui *Tui) setupKeybindings() {
 				tui.navigateForm(true)
 			}
 			return nil
-		case tcell.KeyCtrlU:
-			if tui.State.CurrentFocused == tui.Components.Form {
-				go tui.clear()
-				return nil
-			}
-			return nil
 		case tcell.KeyCtrlP:
 			if tui.State.CurrentFocused == tui.Components.Form {
 				tui.navigateForm(false)
-			}
-			return nil
-		case tcell.KeyCtrlD:
-			if tui.State.CurrentFocused == tui.Components.RequestList {
-				go tui.handleDeleteRequest()
-				return nil
-			}
-			return nil
-		case tcell.KeyCtrlO:
-			if tui.State.CurrentFocused == tui.Components.RequestList {
-				go tui.handleLoadRequest()
-				return nil
 			}
 			return nil
 		case tcell.KeyRune:

@@ -52,7 +52,7 @@ func setupShutdown(db *database.Database) {
 
 	go func() {
 		<-c
-		log.Println("Shutting down gracefully...")
+		log.Println("Shutting down database safely")
 		db.Close()
 		os.Exit(0)
 	}()

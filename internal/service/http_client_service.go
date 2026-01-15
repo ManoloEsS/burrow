@@ -105,7 +105,7 @@ func (s *httpClientService) GetSavedRequests() ([]*domain.Request, error) {
 	var reqs []*domain.Request
 
 	for _, r := range reqsJSON {
-		request, err := RequestJSONToStruct(r.RequestJson)
+		request, err := requestJSONToStruct(r.RequestJson)
 		if err != nil {
 			log.Printf("could not parse request %s: %v", r.Name, err)
 			continue
@@ -115,7 +115,7 @@ func (s *httpClientService) GetSavedRequests() ([]*domain.Request, error) {
 	return reqs, nil
 }
 
-func RequestJSONToStruct(jsonData interface{}) (*domain.Request, error) {
+func requestJSONToStruct(jsonData interface{}) (*domain.Request, error) {
 	jsonByte, ok := jsonData.([]byte)
 	if !ok {
 		return nil, fmt.Errorf("expected []byte, got %T", jsonData)

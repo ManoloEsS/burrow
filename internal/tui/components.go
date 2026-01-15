@@ -183,7 +183,7 @@ func (components *UIComponents) createServerStatusComponent() {
 
 func (components *UIComponents) createHeadersTextComponent() {
 	components.HeadersText = tview.NewTextArea()
-	components.HeadersText.SetPlaceholder("key:value key:value").
+	components.HeadersText.SetPlaceholder("key:value, key:value").
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey).Foreground(tcell.ColorBlue)).
 		SetLabel("Headers").
 		SetSize(2, 0).
@@ -192,7 +192,7 @@ func (components *UIComponents) createHeadersTextComponent() {
 
 func (components *UIComponents) createParamsTextComponent() {
 	components.ParamsText = tview.NewTextArea()
-	components.ParamsText.SetPlaceholder("key:value key:value").
+	components.ParamsText.SetPlaceholder("key:value, key:value").
 		SetLabel("Params").
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey).Foreground(tcell.ColorBlue)).
 		SetSize(2, 0).

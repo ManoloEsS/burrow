@@ -112,7 +112,6 @@ func TestConfigValidate(t *testing.T) {
 		config      *Config
 		expectError bool
 		errorField  string
-		description string
 	}{
 		{
 			name: "Valid configuration",
@@ -123,7 +122,6 @@ func TestConfigValidate(t *testing.T) {
 			},
 			expectError: false,
 			errorField:  "",
-			description: "Should pass validation with all required fields set",
 		},
 		{
 			name: "Missing DB_FILE",
@@ -134,7 +132,6 @@ func TestConfigValidate(t *testing.T) {
 			},
 			expectError: true,
 			errorField:  "DB_FILE",
-			description: "Should fail validation when DB_FILE is empty",
 		},
 		{
 			name: "Missing DEFAULT_PORT",
@@ -145,7 +142,6 @@ func TestConfigValidate(t *testing.T) {
 			},
 			expectError: true,
 			errorField:  "DEFAULT_PORT",
-			description: "Should fail validation when DEFAULT_PORT is empty",
 		},
 		{
 			name: "Missing GOOSE_DBSTRING",
@@ -156,7 +152,6 @@ func TestConfigValidate(t *testing.T) {
 			},
 			expectError: true,
 			errorField:  "GOOSE_DBSTRING",
-			description: "Should fail validation when GOOSE_DBSTRING is empty",
 		},
 		{
 			name: "All fields missing",
@@ -167,7 +162,6 @@ func TestConfigValidate(t *testing.T) {
 			},
 			expectError: true,
 			errorField:  "DB_FILE",
-			description: "Should fail validation when all required fields are empty",
 		},
 	}
 

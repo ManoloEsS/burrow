@@ -18,7 +18,6 @@ func TestBuildResponse(t *testing.T) {
 		body           string
 		expectedStatus string
 		expectedType   string
-		description    string
 	}{
 		{
 			name:           "Build JSON response",
@@ -28,23 +27,20 @@ func TestBuildResponse(t *testing.T) {
 			body:           `{"message": "success"}`,
 			expectedStatus: "200 OK",
 			expectedType:   "application/json",
-			description:    "Should build response with JSON content",
 		},
 		{
-			name:           "Build HTML response",
+			name:           "Build text response",
 			status:         "404 Not Found",
 			statusCode:     404,
 			contentType:    "text/html",
 			body:           "<h1>Not Found</h1>",
 			expectedStatus: "404 Not Found",
 			expectedType:   "text/html",
-			description:    "Should build response with HTML content",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a mock HTTP response
 			body := io.NopCloser(strings.NewReader(tt.body))
 			mockHttpResponse := &http.Response{
 				Status:        tt.status,
@@ -55,7 +51,6 @@ func TestBuildResponse(t *testing.T) {
 			}
 			mockHttpResponse.Header.Set("Content-Type", tt.contentType)
 
-			// Test the BuildResponse function
 			resp := &Response{}
 			err := resp.BuildResponse(mockHttpResponse)
 
