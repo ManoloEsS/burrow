@@ -8,19 +8,16 @@ import (
 
 func TestStartServer(t *testing.T) {
 	tests := []struct {
-		name        string
-		path        string
-		description string
+		name string
+		path string
 	}{
 		{
-			name:        "Start server with valid path",
-			path:        "/valid/path",
-			description: "Should start server with valid path",
+			name: "Start server with valid path",
+			path: "/valid/path",
 		},
 		{
-			name:        "Start server with empty path",
-			path:        "",
-			description: "Should handle empty path gracefully",
+			name: "Start server with empty path",
+			path: "",
 		},
 	}
 
@@ -35,16 +32,13 @@ func TestStartServer(t *testing.T) {
 
 func TestStopServer(t *testing.T) {
 	tests := []struct {
-		name        string
-		description string
+		name string
 	}{
 		{
-			name:        "Stop running server",
-			description: "Should stop server gracefully",
+			name: "Stop running server",
 		},
 		{
-			name:        "Stop already stopped server",
-			description: "Should handle stopping already stopped server",
+			name: "Stop already stopped server",
 		},
 	}
 
@@ -57,7 +51,7 @@ func TestStopServer(t *testing.T) {
 	}
 }
 
-func TestGetStatus(t *testing.T) {
+func TestHealthCheck(t *testing.T) {
 	tests := []struct {
 		name        string
 		description string
@@ -75,7 +69,7 @@ func TestGetStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := NewServerService()
-			status := service.GetStatus()
+			status := service.HealthCheck()
 
 			// Initial status should be not running
 			assert.False(t, status.Running)

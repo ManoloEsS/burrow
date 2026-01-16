@@ -232,16 +232,16 @@ func (tui *Tui) populateRequest(req *domain.Request) {
 func responseStringBuilder(resp *domain.Response) string {
 	var builder strings.Builder
 
-	builder.WriteString(fmt.Sprintf("Status: %s\n\n", resp.Status))
-	builder.WriteString(fmt.Sprintf("Response time: %s\n\n", resp.ResponseTime))
-	builder.WriteString(fmt.Sprintf("Content-Type: %s\n\n", resp.ContentType))
-	builder.WriteString(fmt.Sprintf("Content-Length: %d\n\n", resp.ContentLenght))
+	fmt.Fprintf(&builder, "[yellow]Status:[-] [blue]%s[-]\n\n", resp.Status)
+	fmt.Fprintf(&builder, "[yellow]Response time:[-] [blue]%s[-]\n\n", resp.ResponseTime)
+	fmt.Fprintf(&builder, "[yellow]Content-Type:[-] [blue]%s[-]\n\n", resp.ContentType)
+	fmt.Fprintf(&builder, "[yellow]Content-Length:[-] [blue]%d[-]\n\n", resp.ContentLenght)
 
 	if resp.Body != "" {
-		builder.WriteString("Body:\n")
-		builder.WriteString(resp.Body)
+		fmt.Fprintf(&builder, "[yellow]Body:[-]\n")
+		fmt.Fprint(&builder, resp.Body)
 	} else {
-		builder.WriteString(`No body`)
+		fmt.Fprint(&builder, "[blue]No body[-]")
 	}
 
 	return builder.String()

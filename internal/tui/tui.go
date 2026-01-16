@@ -28,7 +28,7 @@ func (tui *Tui) Initialize() error {
 	tui.Components = createTuiLayout()
 	tui.setupKeybindings()
 	tui.loadSavedRequests()
-	tui.updateServerStatus(tui.ServerService.GetStatus())
+	tui.updateServerStatus(tui.ServerService.HealthCheck())
 
 	tui.focusForm()
 

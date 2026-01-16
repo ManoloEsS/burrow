@@ -20,5 +20,5 @@ type HttpClientService interface {
 type ServerService interface {
 	StartServer(string) error
 	StopServer() error
-	GetStatus() ServerStatus
+	HealthCheck() ServerStatus
 }

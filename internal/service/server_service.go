@@ -1,18 +1,9 @@
 package service
 
-import (
-	"sync"
-
-	"github.com/ManoloEsS/burrow/internal/config"
-)
-
 type serverService struct {
-	config        *config.Config
 	currentStatus ServerStatus
-	statusMutex   sync.RWMutex
-	serverCancel  chan struct{}
-	serverWG      sync.WaitGroup
 	crashDetected bool
+	serverCancel  chan struct{}
 }
 
 func NewServerService() ServerService {
@@ -33,11 +24,7 @@ func (s *serverService) StopServer() error {
 	return nil
 }
 
-func (s *serverService) stopServerInternal() error {
-	return nil
-}
-
-func (s *serverService) GetStatus() ServerStatus {
+func (s *serverService) HealthCheck() ServerStatus {
 	return s.currentStatus
 }
 

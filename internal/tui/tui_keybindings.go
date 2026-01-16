@@ -55,6 +55,9 @@ func (tui *Tui) setupKeybindings() {
 				tui.navigateForm(true)
 			}
 			return nil
+		case tcell.KeyCtrlT:
+			tui.focusResponseView()
+			return nil
 		case tcell.KeyCtrlP:
 			if tui.State.CurrentFocused == tui.Components.Form {
 				tui.navigateForm(false)
@@ -101,6 +104,11 @@ func (tui *Tui) focusRequestNameInput() {
 func (tui *Tui) focusRequestList() {
 	tui.State.CurrentFocused = tui.Components.RequestList
 	tui.Ui.SetFocus(tui.Components.RequestList)
+}
+
+func (tui *Tui) focusResponseView() {
+	tui.State.CurrentFocused = tui.Components.ResponseView
+	tui.Ui.SetFocus(tui.Components.ResponseView)
 }
 
 func (tui *Tui) navigateForm(forward bool) {

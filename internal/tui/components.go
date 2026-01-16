@@ -66,8 +66,8 @@ func createTuiLayout() *UIComponents {
 		AddItem(components.ServerPath, 0, 1, false).
 		AddItem(components.StatusText, 0, 1, false)
 
-	topFlex.AddItem(components.LogoText, 0, 2, false).
-		AddItem(components.BindingsText, 0, 5, false)
+	topFlex.AddItem(components.LogoText, 0, 4, false).
+		AddItem(components.BindingsText, 0, 10, false)
 
 	bottomFlex := tview.NewFlex()
 
@@ -163,7 +163,10 @@ func (components *UIComponents) createStatusComponent() {
 func (components *UIComponents) createKeybindingsComponent() {
 	components.BindingsText = tview.NewTextView().
 		SetDynamicColors(true).
-		SetText("[white]Request form      | Saved req list      | Server            | Navigation[-]\nC-f: focus form   [white]|[-] C-l: focus saved req[white]|[-] C-g: focus input  [white]|[-] C-n, C-p: form up/down\nC-s: send req     [white]|[-] C-o: load request   [white]|[-] C-r: start/restart[white]|[-] j/k: list up/down\nC-a: save request [white]|[-] C-d: delete req     [white]|[-] C-x: kill server  [white]|[-]").
+		SetText(`C-f: focus form  [blue]|[-] C-l: focus saved req[blue]|[-] C-g: focus server [blue]|[-] C-u: clear form
+C-s: send request[blue]|[-] j/k: list ↑↓        [blue]|[-] C-x: kill server  [blue]|[-] 
+C-a: save request[blue]|[-] C-o: load request   [blue]|[-] C-r: start/restart[blue]|[-] 
+C-n/p: form ↑↓   [blue]|[-] C-d: del request    [blue]|[-]                   [blue]|[-]C-t: focus resp`).
 		SetTextColor(tcell.ColorGray)
 }
 
@@ -172,7 +175,7 @@ func (components *UIComponents) createServerPathComponent() {
 	components.ServerPath.SetPlaceholder("path/to/server").
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
 		SetPlaceholderTextColor(tcell.ColorBlue).
-		SetFieldBackgroundColor(tcell.ColorLightCoral)
+		SetFieldTextColor(tcell.ColorBlack)
 }
 
 func (components *UIComponents) createServerStatusComponent() {
