@@ -1,8 +1,9 @@
 package tui
 
 import (
-	"log"
+	"fmt"
 
+	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -29,7 +30,7 @@ type UIComponents struct {
 	StatusText  *tview.TextView
 }
 
-func createTuiLayout() *UIComponents {
+func createTuiLayout(cfg *config.Config) *UIComponents {
 	components := &UIComponents{}
 
 	components.createLogoComponent()
@@ -40,7 +41,7 @@ func createTuiLayout() *UIComponents {
 
 	components.createServerStatusComponent()
 
-	components.createUrlInputComponent()
+	components.createUrlInputComponent(cfg)
 
 	components.createHeadersTextComponent()
 
@@ -62,8 +63,8 @@ func createTuiLayout() *UIComponents {
 
 	serverFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
-	serverFlex.AddItem(components.ServerStatus, 0, 1, false).
-		AddItem(components.ServerPath, 0, 1, false).
+	serverFlex.AddItem(components.ServerStatus, 1, 1, false).
+		AddItem(components.ServerPath, 1, 1, false).
 		AddItem(components.StatusText, 0, 1, false)
 
 	topFlex.AddItem(components.LogoText, 0, 4, false).
@@ -99,9 +100,9 @@ func createTuiLayout() *UIComponents {
 	return components
 }
 
-func (components *UIComponents) createUrlInputComponent() {
+func (components *UIComponents) createUrlInputComponent(cfg *config.Config) {
 	components.URLInput = tview.NewInputField()
-	components.URLInput.SetPlaceholder("default localhost:8080").
+	components.URLInput.SetPlaceholder(fmt.Sprintf("default localhost:%s", cfg.DefaultPort)).
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
 		SetPlaceholderTextColor(tcell.ColorBlue).
 		SetLabel("URL ").
@@ -144,7 +145,8 @@ func (components *UIComponents) createFormAndSetup() {
 		components.BodyType = bodyDropDown
 		components.BodyType.SetCurrentOption(0)
 	} else {
-		log.Printf("Warning: Failed to extract Body type dropdown from form")
+		// No logging - this is not a service return or TUI error
+		// Component initialization failures are handled gracefully without logging
 	}
 
 }

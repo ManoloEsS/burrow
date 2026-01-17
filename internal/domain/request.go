@@ -45,6 +45,11 @@ func (req *Request) ParseUrl(cfg *config.Config, url string) error {
 		return nil
 	}
 
+	if strings.HasPrefix(url, "/") {
+		req.URL = "http://localhost:" + cfg.DefaultPort + url
+		return nil
+	}
+
 	if strings.HasPrefix(url, ":") {
 		req.URL = "http://localhost" + url
 		return nil

@@ -1,6 +1,10 @@
 package tui
 
 import (
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/ManoloEsS/burrow/internal/service"
 	"github.com/rivo/tview"
@@ -13,22 +17,33 @@ type Tui struct {
 	Components    *UIComponents
 	State         *UIState
 	Config        *config.Config
+	logger        *log.Logger
 }
 
 func NewTui(cfg *config.Config) *Tui {
+	logFile, err := os.Create(filepath.Join(os.TempDir(), "burrow_log"))
+	if err != nil {
+		return &Tui{
+			Ui:     tview.NewApplication(),
+			State:  &UIState{},
+			Config: cfg,
+			logger: nil,
+		}
+	}
+
 	return &Tui{
 		Ui:     tview.NewApplication(),
 		State:  &UIState{},
 		Config: cfg,
+		logger: log.New(logFile, "[TUI] ", log.LstdFlags),
 	}
-
 }
 
 func (tui *Tui) Initialize() error {
-	tui.Components = createTuiLayout()
+	tui.Components = createTuiLayout(tui.Config)
 	tui.setupKeybindings()
 	tui.loadSavedRequests()
-	tui.updateServerStatus(tui.ServerService.HealthCheck())
+	// tui.updateServerStatus(tui.ServerService.HealthCheck())
 
 	tui.focusForm()
 
