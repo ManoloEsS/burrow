@@ -93,9 +93,23 @@ func (s *serverService) orchestrator(ctx context.Context) {
 		s.healthChecker(healthCheckerCtx)
 	}()
 
+	timeoutTicker := time.NewTicker(time.Minute * 15)
+
 	for {
 		select {
 		case <-ctx.Done():
+			healthCheckerCancel()
+			wg.Wait()
+			s.gracefulShutdown()
+
+			s.serverMu.Lock()
+			defer s.serverMu.Unlock()
+
+			s.isRunning = false
+			s.serverProcess = nil
+			return
+
+		case <-timeoutTicker.C:
 			healthCheckerCancel()
 			wg.Wait()
 			s.gracefulShutdown()

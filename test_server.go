@@ -17,6 +17,7 @@ func main() {
 	}
 
 	mux.HandleFunc("GET /health", handlerHealth)
+	mux.HandleFunc("GET /monchi", handlerMonch)
 
 	log.Fatal(s.ListenAndServe())
 }
@@ -24,4 +25,10 @@ func main() {
 func handlerHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(http.StatusText(http.StatusOK)))
+}
+
+func handlerMonch(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(http.StatusText(http.StatusOK)))
+	w.Write([]byte("hello monchichi"))
 }
