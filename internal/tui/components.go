@@ -167,7 +167,7 @@ func (components *UIComponents) createKeybindingsComponent() {
 		SetDynamicColors(true).
 		SetText(`C-f: focus form  [blue]|[-] C-l: focus saved req[blue]|[-] C-g: focus server [blue]|[-] C-u: clear form
 C-s: send request[blue]|[-] j/k: list ↑↓        [blue]|[-] C-x: kill server  [blue]|[-] 
-C-a: save request[blue]|[-] C-o: load request   [blue]|[-] C-r: start/restart[blue]|[-] 
+C-a: save request[blue]|[-] C-o: load request   [blue]|[-] C-r: start        [blue]|[-] 
 C-n/p: form ↑↓   [blue]|[-] C-d: del request    [blue]|[-]                   [blue]|[-]C-t: focus resp`).
 		SetTextColor(tcell.ColorGray)
 }

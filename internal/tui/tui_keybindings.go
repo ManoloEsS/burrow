@@ -15,10 +15,10 @@ func (tui *Tui) setupKeybindings() {
 		case tcell.KeyCtrlA:
 			go tui.handleSaveRequest()
 			return nil
-		case tcell.KeyF5:
+		case tcell.KeyCtrlR:
 			go tui.handleStartServer()
 			return nil
-		case tcell.KeyF6:
+		case tcell.KeyCtrlX:
 			go tui.handleStopServer()
 			return nil
 		case tcell.KeyCtrlD:

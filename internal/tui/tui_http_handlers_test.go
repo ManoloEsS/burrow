@@ -26,7 +26,7 @@ func TestGetCurrentRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &config.Config{DefaultPort: "8080"}
 			tui := NewTui(cfg)
-			tui.Components = createTuiLayout()
+			tui.Components = createTuiLayout(cfg)
 
 			tui.Components.NameInput.SetText("test-request")
 			tui.Components.MethodDropdown.SetCurrentOption(0)

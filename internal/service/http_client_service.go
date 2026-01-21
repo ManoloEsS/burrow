@@ -10,14 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/ManoloEsS/burrow/internal/database"
 	"github.com/ManoloEsS/burrow/internal/domain"
 )
 
 type httpClientService struct {
 	requestRepo *database.Database
-	config      *config.Config
 }
 
 func NewHttpClientService(requestRepo *database.Database) HttpClientService {
