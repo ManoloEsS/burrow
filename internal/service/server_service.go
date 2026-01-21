@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -22,6 +23,7 @@ type serverService struct {
 	pathToServer   string
 	healthCheckURL string
 	httpClient     *http.Client
+	binaryPath     string
 }
 
 type UIEvent struct {
@@ -40,22 +42,26 @@ func NewServerService() ServerService {
 
 func (s *serverService) StartServer(path string, port string, updateChan chan UIEvent) error {
 	s.serverMu.Lock()
-	defer s.serverMu.Unlock()
-	// FIX: Single assignment of updateChan instead of duplicate assignments
 	s.updateChan = updateChan
+	s.serverMu.Unlock()
+
 	s.sendEvent("update", "starting server...")
+
 	validPath, err := s.validatePath(path)
 	if err != nil {
 		return fmt.Errorf("invalid path: %v", err)
 	}
+	s.sendEvent("update", "valid path")
 
 	if s.isRunning {
 		return fmt.Errorf("server already running")
 	}
 
+	s.serverMu.Lock()
 	s.pathToServer = validPath
 	s.healthCheckURL = "http://localhost:" + port + "/health"
-	// FIX: Removed duplicate assignment of updateChan (was set on line 44)
+	s.serverMu.Unlock()
+	s.sendEvent("", "updated state")
 
 	orchestratorCtx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
@@ -90,12 +96,8 @@ func (s *serverService) orchestrator(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			// FIX: Improved shutdown sequence for better context cancellation handling
-			// Cancel health checker first to prevent interference with server shutdown
 			healthCheckerCancel()
-			// Wait for health checker goroutine to finish before shutting down server
 			wg.Wait()
-			// Now safely shutdown the server process
 			s.gracefulShutdown()
 
 			s.serverMu.Lock()
@@ -109,10 +111,36 @@ func (s *serverService) orchestrator(ctx context.Context) {
 
 }
 
+func (s *serverService) buildBinary(path string) error {
+	s.sendEvent("update", "building binary...")
+
+	if err := os.MkdirAll("./bin", 0755); err != nil {
+		return fmt.Errorf("failed to create bin directory: %v", err)
+	}
+
+	cmd := exec.Command("go", "build", "-o", "./bin/burrow-server", "-trimpath", path)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("build failed: %v", err)
+	}
+
+	s.binaryPath = "./bin/burrow-server"
+	s.sendEvent("update", "binary built successfully")
+	return nil
+}
+
 func (s *serverService) runCmdFromPath(ctx context.Context) (*exec.Cmd, error) {
-	cmd := exec.CommandContext(ctx, "go", "run", s.pathToServer)
-	err := cmd.Start()
-	if err != nil {
+	if err := s.buildBinary(s.pathToServer); err != nil {
+		return nil, err
+	}
+
+	cmd := exec.CommandContext(ctx, s.binaryPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
 
@@ -125,8 +153,6 @@ func (s *serverService) healthChecker(ctx context.Context) {
 	s.sendEvent("update", "trying to reach server")
 
 	resp, err := s.httpClient.Get(s.healthCheckURL)
-	// FIX: Close response body immediately to prevent resource leak
-	// Previous defer would keep all response bodies open until function exit
 	if resp != nil && resp.Body != nil {
 		resp.Body.Close()
 	}
@@ -148,8 +174,6 @@ func (s *serverService) healthChecker(ctx context.Context) {
 			return
 		case <-ticker.C:
 			resp, err := s.httpClient.Get(s.healthCheckURL)
-			// FIX: Close response body immediately to prevent resource leak in ticker loop
-			// Previous defer would accumulate open file descriptors every 5 seconds
 			if resp != nil && resp.Body != nil {
 				resp.Body.Close()
 			}
@@ -168,32 +192,35 @@ func (s *serverService) healthChecker(ctx context.Context) {
 }
 
 func (s *serverService) StopServer() error {
-	s.serverMu.Lock()
-	defer s.serverMu.Unlock()
-
 	if s.cancelFunc == nil || !s.isRunning {
 		return errors.New("server not running")
 	}
 
 	cancel := s.cancelFunc
+
+	s.serverMu.Lock()
+	defer s.serverMu.Unlock()
+
 	s.cancelFunc = nil
 	cancel()
+
 	return nil
 }
 
 func (s *serverService) gracefulShutdown() {
-	// FIX: Single nil check to prevent duplicate validation
-	// Previous code checked the same condition twice and sent duplicate messages
 	if s.serverProcess == nil || s.serverProcess.Process == nil {
 		s.sendEvent("update", "no server process to stop")
+		s.cleanupBinary()
 		return
 	}
 
-	// FIX: Single shutdown message instead of duplicate
-	s.sendEvent("update", "stopping server service - context cancelled, waiting for graceful shutdown")
+	s.sendEvent("update", "stopping server - sending SIGTERM")
 
-	// Store process reference for shutdown operations
 	process := s.serverProcess
+
+	if err := process.Process.Signal(syscall.SIGTERM); err != nil {
+		s.sendEvent("error", fmt.Sprintf("failed to send SIGTERM: %v", err))
+	}
 
 	done := make(chan error, 1)
 	go func() {
@@ -208,7 +235,7 @@ func (s *serverService) gracefulShutdown() {
 			s.sendEvent("update", "server process shut down gracefully")
 		}
 	case <-time.After(5 * time.Second):
-		s.sendEvent("error", "server process didn't exit gracefully, force killing")
+		s.sendEvent("error", "server didn't shutdown gracefully, force killing")
 		if process.Process != nil {
 			if err := process.Process.Kill(); err != nil {
 				s.sendEvent("error", fmt.Sprintf("failed to kill process: %v", err))
@@ -218,6 +245,8 @@ func (s *serverService) gracefulShutdown() {
 			process.Wait()
 		}
 	}
+
+	s.cleanupBinary()
 }
 
 func (s *serverService) validatePath(path string) (string, error) {
@@ -239,14 +268,22 @@ func (s *serverService) validatePath(path string) (string, error) {
 
 }
 
+func (s *serverService) cleanupBinary() {
+	if s.binaryPath != "" {
+		if err := os.Remove(s.binaryPath); err != nil && !os.IsNotExist(err) {
+			s.sendEvent("error", fmt.Sprintf("failed to cleanup binary: %v", err))
+		} else {
+			s.sendEvent("update", "binary cleaned up")
+		}
+		s.binaryPath = ""
+	}
+}
+
 func (s *serverService) sendEvent(eventType, message string) {
-	// FIX: Thread-safe access to updateChan to prevent race conditions
-	// Previous implementation accessed updateChan without mutex protection
 	s.serverMu.Lock()
 	updateChan := s.updateChan
 	s.serverMu.Unlock()
 
-	// Only send if channel is available
 	if updateChan != nil {
 		select {
 		case updateChan <- UIEvent{Type: eventType, Message: message}:

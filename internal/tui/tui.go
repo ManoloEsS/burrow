@@ -19,7 +19,6 @@ type Tui struct {
 	Config              *config.Config
 	logger              *log.Logger
 	ServerUpdateChannel chan service.UIEvent
-	done                chan struct{}
 }
 
 func NewTui(cfg *config.Config) *Tui {
@@ -31,7 +30,6 @@ func NewTui(cfg *config.Config) *Tui {
 			Config:              cfg,
 			logger:              nil,
 			ServerUpdateChannel: make(chan service.UIEvent, 30),
-			done:                make(chan struct{}),
 		}
 	}
 
@@ -41,7 +39,6 @@ func NewTui(cfg *config.Config) *Tui {
 		Config:              cfg,
 		logger:              log.New(logFile, "[TUI] ", log.LstdFlags),
 		ServerUpdateChannel: make(chan service.UIEvent, 30),
-		done:                make(chan struct{}),
 	}
 }
 
@@ -57,8 +54,4 @@ func (tui *Tui) Initialize() error {
 
 func (tui *Tui) Start() error {
 	return tui.Ui.SetRoot(tui.Components.MainLayout, true).EnableMouse(true).Run()
-}
-
-func (tui *Tui) Stop() {
-	close(tui.done)
 }

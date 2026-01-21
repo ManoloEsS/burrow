@@ -8,6 +8,9 @@ import (
 
 func (tui *Tui) handleStartServer() {
 	serverPath := tui.Components.ServerPath.GetText()
+	tui.Ui.QueueUpdateDraw(func() {
+		tui.Components.ServerStatus.SetText("starting server")
+	})
 
 	err := tui.ServerService.StartServer(serverPath, tui.Config.DefaultPort, tui.ServerUpdateChannel)
 	if err != nil {
@@ -29,12 +32,6 @@ func (tui *Tui) handleStopServer() {
 	}
 }
 
-func (tui *Tui) updateOnServerStatusChange(status string) {
-	tui.Ui.QueueUpdateDraw(func() {
-		tui.Components.ServerStatus.SetText(status)
-	})
-}
-
 func (tui *Tui) handleServerEvent(event service.UIEvent) {
 	tui.Ui.QueueUpdateDraw(func() {
 		switch event.Type {
@@ -53,8 +50,6 @@ func (tui *Tui) serverUpdateListener() {
 		select {
 		case event := <-tui.ServerUpdateChannel:
 			tui.handleServerEvent(event)
-		case <-tui.done:
-			return // Graceful shutdown when TUI.Stop() is called
 		}
 	}
 }
