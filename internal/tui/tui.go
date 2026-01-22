@@ -3,7 +3,6 @@ package tui
 import (
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/ManoloEsS/burrow/internal/config"
 	"github.com/ManoloEsS/burrow/internal/service"
@@ -22,7 +21,7 @@ type Tui struct {
 }
 
 func NewTui(cfg *config.Config) *Tui {
-	logFile, err := os.Create(filepath.Join(os.TempDir(), "burrow_log"))
+	logFile, err := os.Create(cfg.Paths.LogFile)
 	if err != nil {
 		return &Tui{
 			Ui:                  tview.NewApplication(),

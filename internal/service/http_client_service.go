@@ -24,10 +24,8 @@ func NewHttpClientService(requestRepo *database.Database) HttpClientService {
 	}
 }
 
-func (s *httpClientService) DeleteRequest(reqString string) error {
-	//TODO: change logic to split string in handler, delete should just delete and retur err
-	stringParts := strings.Split(reqString, "|")
-	err := s.requestRepo.Queries.DeleteRequest(context.Background(), strings.TrimSpace(stringParts[0]))
+func (s *httpClientService) DeleteRequest(reqName string) error {
+	err := s.requestRepo.Queries.DeleteRequest(context.Background(), reqName)
 	if err != nil {
 		log.Printf("could not delete request from database: %v", err)
 		return fmt.Errorf("could not delete request from database: %v", err)

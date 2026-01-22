@@ -1,0 +1,40 @@
+# Burrow Configuration File
+# Location: ~/.config/burrow/config.yaml
+# 
+# This file shows all available configuration options for Burrow.
+# All values have sensible defaults, so you only need to specify
+# what you want to override.
+
+# Application Settings
+app:
+  default_port: "8080"
+  # default port to send http requests with empty url input
+
+# Database Settings  
+database:
+  path: ""
+  migrations_dir: "sql/migrations"
+  # Path to SQLite database file
+  # Leave empty to use XDG default: ~/.local/share/burrow/burrow.db
+  # Environment variable: DB_FILE
+  #
+  # Directory containing database migration files
+  # Usually relative to project root
+  # Environment variable: GOOSE_MIGRATIONS_DIR
+
+# Note: The database connection string is automatically generated
+# from the path. You don't need to configure it manually.
+
+---
+# Environment Variable Overrides
+# 
+# You can also set these values using environment variables:
+# 
+# DEFAULT_PORT - Override the default port (default: 8080)
+# DB_FILE - Override database path (default: ~/.local/share/burrow/burrow.db)  
+# GOOSE_MIGRATIONS_DIR - Override migrations directory (default: sql/migrations)
+#
+# Example:
+#   DEFAULT_PORT=3000 burrow
+#   DB_FILE=/tmp/mydb.db burrow
+

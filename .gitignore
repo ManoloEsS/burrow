@@ -25,10 +25,10 @@ profile.cov
 go.work
 go.work.sum
 
-# env file
+# env file (legacy - replaced by YAML config)
 .env
 
-# Database files
+# Database files (project-local - now uses XDG by default)
 *.db
 *.sqlite3
 *.sqlite
@@ -39,24 +39,34 @@ internal/database/queries.go
 # Goose logs
 /goose_db_version
 
-# logs
+# logs (now uses XDG state directory)
 *.logs
 
-# Build artifacts
+# Build artifacts (now uses XDG cache for servers)
 burrow
 
 # Editor/IDE
 # .idea/
 # .vscode/
 
-.env
-
+# Temporary files (legacy - replaced by XDG paths)
 tmp
+# Legacy files (now use XDG paths)
 burrow.db-shm
 burrow.db-wal
+
+# Distribution files
 DISTRIBUTION*
 app.yaml
 Makefile
 distribution*
+# Build artifacts (server binaries now use XDG cache)
 bin/burrow-server
+# CLI executable
 cli
+
+# XDG user data directories (should not be committed)
+.cache/burrow/
+.config/burrow/
+.local/share/burrow/
+.local/state/burrow/

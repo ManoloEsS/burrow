@@ -116,7 +116,7 @@ func TestParseUrl(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := &Request{}
-			cfg := &config.Config{DefaultPort: "8080"}
+			cfg := &config.Config{App: config.AppConfig{DefaultPort: "8080"}}
 			err := req.ParseUrl(cfg, tt.input)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, req.URL)

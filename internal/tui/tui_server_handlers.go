@@ -12,7 +12,7 @@ func (tui *Tui) handleStartServer() {
 		tui.Components.ServerStatus.SetText("starting server")
 	})
 
-	err := tui.ServerService.StartServer(serverPath, tui.Config.DefaultPort, tui.ServerUpdateChannel)
+	err := tui.ServerService.StartServer(serverPath, tui.Config.App.DefaultPort, tui.ServerUpdateChannel)
 	if err != nil {
 		tui.Ui.QueueUpdateDraw(func() {
 			tui.Components.ServerStatus.SetText(fmt.Sprintf("[red]Failed to start server: %s[-]", err.Error()))

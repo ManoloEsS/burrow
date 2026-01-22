@@ -102,7 +102,7 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 
 func (components *UIComponents) createUrlInputComponent(cfg *config.Config) {
 	components.URLInput = tview.NewInputField()
-	components.URLInput.SetPlaceholder(fmt.Sprintf("default localhost:%s", cfg.DefaultPort)).
+	components.URLInput.SetPlaceholder(fmt.Sprintf("default localhost:%s", cfg.App.DefaultPort)).
 		SetPlaceholderStyle(tcell.StyleDefault.Background(tcell.ColorGrey)).
 		SetPlaceholderTextColor(tcell.ColorBlue).
 		SetLabel("URL ").
@@ -145,8 +145,6 @@ func (components *UIComponents) createFormAndSetup() {
 		components.BodyType = bodyDropDown
 		components.BodyType.SetCurrentOption(0)
 	} else {
-		// No logging - this is not a service return or TUI error
-		// Component initialization failures are handled gracefully without logging
 	}
 
 }
@@ -166,11 +164,11 @@ func (components *UIComponents) createStatusComponent() {
 func (components *UIComponents) createKeybindingsComponent() {
 	components.BindingsText = tview.NewTextView().
 		SetDynamicColors(true).
-		SetText(`C-f: focus form  [blue]|[-] C-l: focus saved req[blue]|[-] C-g: focus server [blue]|[-] C-u: clear form
-C-s: send request[blue]|[-] j/k: list ↑↓        [blue]|[-] C-x: kill server  [blue]|[-] 
-C-a: save request[blue]|[-] C-o: load request   [blue]|[-] C-r: start        [blue]|[-] 
-C-n/p: form ↑↓   [blue]|[-] C-d: del request    [blue]|[-]                   [blue]|[-]C-t: focus resp
-`).
+		SetText(`[white]Request form[-]     [blue]|[-][-][white]Response view[-]        [blue]|[-][white]Saved requests list[-][blue]|[-][white]Server[-]  
+C-f: focus form  [blue]|[-] C-t: focus resp     [blue]|[-] C-l: focus list   [blue]|[-] C-g: focus input     
+C-s: send request[blue]|[-] j/k:scroll    ↑↓    [blue]|[-] j/k:navigate  ↑↓  [blue]|[-] C-x: kill server  
+C-a: save request[blue]|[-][blue]_____________________|[-] C-o: load request [blue]|[-] C-r: start server
+C-n/p: navigate↑↓  C-u: clear form     [blue]|[-] C-d: del request  [blue]|[-]`).
 		SetTextColor(tcell.ColorGray)
 }
 
@@ -221,7 +219,9 @@ func (components *UIComponents) createResponseViewComponent() {
 	components.ResponseView.SetDynamicColors(true).
 		SetBorder(true).
 		SetTitle("Response").
-		SetTitleAlign(tview.AlignLeft)
+		SetTitleAlign(tview.AlignLeft).
+		SetBorderColor(tcell.ColorBlue).
+		SetTitleColor(tcell.ColorYellow)
 }
 
 func (components *UIComponents) createRequestListComponent() {
@@ -229,5 +229,7 @@ func (components *UIComponents) createRequestListComponent() {
 	components.RequestList.ShowSecondaryText(false).
 		SetBorder(true).
 		SetTitle("Saved Requests").
-		SetTitleAlign(tview.AlignLeft)
+		SetTitleAlign(tview.AlignLeft).
+		SetBorderColor(tcell.ColorBlue).
+		SetTitleColor(tcell.ColorYellow)
 }

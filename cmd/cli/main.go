@@ -10,21 +10,16 @@ import (
 	"github.com/ManoloEsS/burrow/internal/database"
 	"github.com/ManoloEsS/burrow/internal/service"
 	"github.com/ManoloEsS/burrow/internal/tui"
-	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: Could not load .env file: %v", err)
-	}
-
-	cfg := config.LoadFromEnv()
-	if err := cfg.Validate(); err != nil {
+	cfg, err := config.Load()
+	if err != nil {
 		log.Fatalf("Configuration error: %v", err)
 	}
 
-	db, err := database.NewDatabase(cfg.DbPath, cfg.DbString, cfg.DbMigrationsDir)
+	db, err := database.NewDatabase(cfg.Database.Path, cfg.Database.ConnectionString, cfg.Database.MigrationsDir)
 	if err != nil {
 		log.Fatalf("Could not initialize database: %v", err)
 	}

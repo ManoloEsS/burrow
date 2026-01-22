@@ -56,7 +56,9 @@ func (tui *Tui) handleDeleteRequest() {
 
 	index := tui.Components.RequestList.GetCurrentItem()
 	text, _ := tui.Components.RequestList.GetItemText(index)
-	err := tui.HttpService.DeleteRequest(text)
+	textParts := strings.Split(text, "|")
+
+	err := tui.HttpService.DeleteRequest(strings.TrimSpace(textParts[0]))
 	if err != nil {
 		log.Printf("could not delete request: %v", err)
 		tui.Ui.QueueUpdateDraw(func() {
@@ -232,9 +234,9 @@ func (tui *Tui) populateRequest(req *domain.Request) {
 func responseStringBuilder(resp *domain.Response) string {
 	var builder strings.Builder
 
-	fmt.Fprintf(&builder, "[yellow]Status:[-] [blue]%s[-]\n\n", resp.Status)
+	fmt.Fprintf(&builder, "[yellow]Status:[-] [blue]%s[-]\n", resp.Status)
 	fmt.Fprintf(&builder, "[yellow]Response time:[-] [blue]%s[-]\n\n", resp.ResponseTime)
-	fmt.Fprintf(&builder, "[yellow]Content-Type:[-] [blue]%s[-]\n\n", resp.ContentType)
+	fmt.Fprintf(&builder, "[yellow]Content-Type:[-] [blue]%s[-]\n", resp.ContentType)
 	fmt.Fprintf(&builder, "[yellow]Content-Length:[-] [blue]%d[-]\n\n", resp.ContentLenght)
 
 	if resp.Body != "" {

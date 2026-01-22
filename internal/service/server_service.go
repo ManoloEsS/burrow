@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/ManoloEsS/burrow/internal/pkg/paths"
 )
 
 type serverService struct {
@@ -127,11 +130,15 @@ func (s *serverService) orchestrator(ctx context.Context) {
 func (s *serverService) buildBinary(path string) error {
 	s.sendEvent("update", "building binary...")
 
-	if err := os.MkdirAll("./bin", 0755); err != nil {
-		return fmt.Errorf("failed to create bin directory: %v", err)
+	cacheDir := paths.GetServerCachePath()
+	if err := os.MkdirAll(cacheDir, 0755); err != nil {
+		return fmt.Errorf("failed to create cache directory: %v", err)
 	}
 
-	cmd := exec.Command("go", "build", "-o", "./bin/burrow-server", "-trimpath", path)
+	binaryName := fmt.Sprintf("burrow-server-%x", md5.Sum([]byte(path)))[:8]
+	binaryPath := filepath.Join(cacheDir, binaryName)
+
+	cmd := exec.Command("go", "build", "-o", binaryPath, "-trimpath", path)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -139,7 +146,7 @@ func (s *serverService) buildBinary(path string) error {
 		return fmt.Errorf("build failed: %v", err)
 	}
 
-	s.binaryPath = "./bin/burrow-server"
+	s.binaryPath = binaryPath
 	s.sendEvent("update", "server running...")
 	return nil
 }
