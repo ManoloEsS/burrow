@@ -43,6 +43,5 @@ func handlerHealth(w http.ResponseWriter, r *http.Request) {
 
 func handlerMonch(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(http.StatusText(http.StatusOK)))
-	w.Write([]byte("/n hello monchichi"))
+	w.Write([]byte("hello monchichi"))
 }
