@@ -138,7 +138,7 @@ func TestReqStructToHttpReq(t *testing.T) {
 					if expectedSub == tt.request.Method {
 						assert.Equal(t, tt.request.Method, httpReq.Method)
 					} else if expectedSub == tt.request.URL {
-						assert.Equal(t, tt.request.URL, httpReq.URL)
+						assert.Equal(t, tt.request.URL, httpReq.URL.String())
 					} else {
 						assert.Contains(t, httpReq.Header.Get("Content-Type"), expectedSub)
 					}

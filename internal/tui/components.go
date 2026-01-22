@@ -63,9 +63,9 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 
 	serverFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
-	serverFlex.AddItem(components.ServerStatus, 1, 1, false).
-		AddItem(components.ServerPath, 1, 1, false).
-		AddItem(components.StatusText, 0, 1, false)
+	serverFlex.AddItem(components.ServerStatus, 0, 2, false).
+		AddItem(components.ServerPath, 0, 1, false).
+		AddItem(components.StatusText, 0, 2, false)
 
 	topFlex.AddItem(components.LogoText, 0, 4, false).
 		AddItem(components.BindingsText, 0, 10, false)
@@ -84,8 +84,8 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 
 	bottomRightFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
-	bottomRightFlex.AddItem(components.RequestList, 0, 3, false)
-	bottomRightFlex.AddItem(serverFlex, 0, 2, false)
+	bottomRightFlex.AddItem(components.RequestList, 0, 9, false)
+	bottomRightFlex.AddItem(serverFlex, 0, 5, false)
 
 	rightFlex.AddItem(responseFlex, 0, 8, false).
 		AddItem(bottomRightFlex, 0, 2, false)
@@ -159,6 +159,7 @@ func (components *UIComponents) createLogoComponent() {
 
 func (components *UIComponents) createStatusComponent() {
 	components.StatusText = tview.NewTextView().SetText("Ready!").
+		SetWrap(true).
 		SetTextColor(tcell.ColorBlue)
 }
 
@@ -168,7 +169,8 @@ func (components *UIComponents) createKeybindingsComponent() {
 		SetText(`C-f: focus form  [blue]|[-] C-l: focus saved req[blue]|[-] C-g: focus server [blue]|[-] C-u: clear form
 C-s: send request[blue]|[-] j/k: list ↑↓        [blue]|[-] C-x: kill server  [blue]|[-] 
 C-a: save request[blue]|[-] C-o: load request   [blue]|[-] C-r: start        [blue]|[-] 
-C-n/p: form ↑↓   [blue]|[-] C-d: del request    [blue]|[-]                   [blue]|[-]C-t: focus resp`).
+C-n/p: form ↑↓   [blue]|[-] C-d: del request    [blue]|[-]                   [blue]|[-]C-t: focus resp
+`).
 		SetTextColor(tcell.ColorGray)
 }
 
@@ -183,6 +185,7 @@ func (components *UIComponents) createServerPathComponent() {
 func (components *UIComponents) createServerStatusComponent() {
 	components.ServerStatus = tview.NewTextView()
 	components.ServerStatus.SetDynamicColors(true).
+		SetWrap(true).
 		SetText("Server not running")
 }
 

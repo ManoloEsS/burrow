@@ -61,7 +61,6 @@ func (s *serverService) StartServer(path string, port string, updateChan chan UI
 	s.pathToServer = validPath
 	s.healthCheckURL = "http://localhost:" + port + "/health"
 	s.serverMu.Unlock()
-	s.sendEvent("", "updated state")
 
 	orchestratorCtx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
@@ -141,7 +140,7 @@ func (s *serverService) buildBinary(path string) error {
 	}
 
 	s.binaryPath = "./bin/burrow-server"
-	s.sendEvent("update", "binary built successfully")
+	s.sendEvent("update", "server running...")
 	return nil
 }
 
@@ -177,7 +176,7 @@ func (s *serverService) healthChecker(ctx context.Context) {
 			s.sendEvent("error", fmt.Sprintf("server returned status %d (expected 200)", resp.StatusCode))
 		}
 	} else {
-		s.sendEvent("update", "server reached successfully")
+		s.sendEvent("update", "server reached, starting health checker")
 	}
 	ticker := time.NewTicker(time.Second * 5)
 	defer ticker.Stop()
@@ -228,12 +227,12 @@ func (s *serverService) gracefulShutdown() {
 		return
 	}
 
-	s.sendEvent("update", "stopping server - sending SIGTERM")
+	s.sendEvent("update", "stopping server")
 
 	process := s.serverProcess
 
 	if err := process.Process.Signal(syscall.SIGTERM); err != nil {
-		s.sendEvent("error", fmt.Sprintf("failed to send SIGTERM: %v", err))
+		s.sendEvent("error", fmt.Sprintf("failed to terminate process: %v", err))
 	}
 
 	done := make(chan error, 1)
@@ -252,7 +251,7 @@ func (s *serverService) gracefulShutdown() {
 		s.sendEvent("error", "server didn't shutdown gracefully, force killing")
 		if process.Process != nil {
 			if err := process.Process.Kill(); err != nil {
-				s.sendEvent("error", fmt.Sprintf("failed to kill process: %v", err))
+				s.sendEvent("error", fmt.Sprintf("failed to kill process %d: %v", s.serverProcess.Process.Pid, err))
 			} else {
 				s.sendEvent("update", "server process force killed")
 			}
@@ -261,6 +260,8 @@ func (s *serverService) gracefulShutdown() {
 	}
 
 	s.cleanupBinary()
+
+	s.sendEvent("update", "server not running...ready")
 }
 
 func (s *serverService) validatePath(path string) (string, error) {
@@ -287,7 +288,7 @@ func (s *serverService) cleanupBinary() {
 		if err := os.Remove(s.binaryPath); err != nil && !os.IsNotExist(err) {
 			s.sendEvent("error", fmt.Sprintf("failed to cleanup binary: %v", err))
 		} else {
-			s.sendEvent("update", "binary cleaned up")
+			s.sendEvent("update", "cleanup successful")
 		}
 		s.binaryPath = ""
 	}

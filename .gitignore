@@ -54,3 +54,9 @@ burrow
 tmp
 burrow.db-shm
 burrow.db-wal
+DISTRIBUTION*
+app.yaml
+Makefile
+distribution*
+bin/burrow-server
+cli
