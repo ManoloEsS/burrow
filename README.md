@@ -22,7 +22,7 @@ burrow
 ```
 - Press `Control + g` to focus the server path input and type `test_go_server.go`
 - Press `Control + r` to run the server file, it will attach to localhost:8080 (make sure the port is not being used)
-- Press `Control + s` to send a get request to http://localhost:8080 (the default url)
+- Press `Control + s` to send a get request to `http://localhost:8080` (the default url)
 
 ## Usage
 
@@ -52,9 +52,39 @@ burrow
 
 - Ctrl-C - Close program
 
-### General Usage
+### General HTTP Client Usage
 Burrow can be used as an API client similar to [Postman](https://www.postman.com/) or [Atac](https://github.com/Julien-cpsn/ATAC).
 The added server functionality is meant to enable students and developers to easily run a go server and test it from the same environment.
+
+The default port http requests are sent to with an empty url field is `8080`, so in order to test your server make sure it attaches to `localhost:8080` or modify the config file to your preferred port. 
+
+The URL field can be used in the following ways:
+```
+somewebsite.com
+http://somewebsite.com
+https://somewebsite.com
+```
+
+URLs without protocol part will be added `https://`
+
+To send requests to local ports you can type:
+```
+:3030
+# will send request to http://localhost:3030
+```
+
+For endpoints you can type the full URL or `/someendpoint`:
+```
+/foo
+# Sends request to http://localhost:8080/foo (assuming 8080 is kept as default port)
+```
+
+### General Server Usage
+Burrow will use the working directory where it was launched as the base for the relative path of the server path input.
+If starting burrow in directory `home/app`, the input `server.go` will look for that file name in `./server.go`
+To access the same file from a different directory you will need to input `home/app/server.go`
+
+Currently Burrow only supports go servers.
 
 ## Configuration
 Burrow uses XDG Base Directory Specification for file storage and supports YAML configuration files. The application works out-of-the-box with sensible defaults.
