@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ManoloEsS/burrow/internal/pkg/paths"
+	"github.com/ManoloEsS/burrow/internal/config"
 )
 
 type serverService struct {
@@ -130,7 +130,7 @@ func (s *serverService) orchestrator(ctx context.Context) {
 func (s *serverService) buildBinary(path string) error {
 	s.sendEvent("update", "building binary...")
 
-	cacheDir := paths.GetServerCachePath()
+	cacheDir := config.GetServerCachePath()
 	if err := os.MkdirAll(cacheDir, 0755); err != nil {
 		return fmt.Errorf("failed to create cache directory: %v", err)
 	}

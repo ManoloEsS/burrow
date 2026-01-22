@@ -8,6 +8,12 @@ import (
 
 func (tui *Tui) handleStartServer() {
 	serverPath := tui.Components.ServerPath.GetText()
+	if serverPath == "" {
+		tui.Ui.QueueUpdateDraw(func() {
+			tui.Components.ServerStatus.SetText("[red]Filepath is empty...[-]")
+		})
+		return
+	}
 	tui.Ui.QueueUpdateDraw(func() {
 		tui.Components.ServerStatus.SetText("starting server")
 	})
@@ -22,7 +28,6 @@ func (tui *Tui) handleStartServer() {
 }
 
 func (tui *Tui) handleStopServer() {
-
 	err := tui.ServerService.StopServer()
 	if err != nil {
 		tui.Ui.QueueUpdateDraw(func() {

@@ -67,8 +67,8 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 		AddItem(components.ServerPath, 0, 1, false).
 		AddItem(components.StatusText, 0, 2, false)
 
-	topFlex.AddItem(components.LogoText, 0, 4, false).
-		AddItem(components.BindingsText, 0, 10, false)
+	topFlex.AddItem(components.LogoText, 0, 3, false).
+		AddItem(components.BindingsText, 0, 8, false)
 
 	bottomFlex := tview.NewFlex()
 
@@ -94,7 +94,7 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 		AddItem(rightFlex, 0, 9, false)
 
 	components.MainLayout = tview.NewFlex().SetDirection(tview.FlexRow)
-	components.MainLayout.AddItem(topFlex, 0, 2, false).
+	components.MainLayout.AddItem(topFlex, 5, 2, false).
 		AddItem(bottomFlex, 0, 10, false)
 
 	return components
@@ -151,7 +151,7 @@ func (components *UIComponents) createFormAndSetup() {
 
 func (components *UIComponents) createLogoComponent() {
 	components.LogoText = tview.NewTextView().SetText(
-		"  _ __                      \n ( /  )                     \n  /--< , , _   _   __ , , , \n /___/(_/_/ (_/ (_(_)(_(_/_ ",
+		" _ __                      \n( /  )                     \n /--< , , _   _   __ , , , \n/___/(_/_/ (_/ (_(_)(_(_/_ ",
 	).SetTextColor(tcell.ColorBlue)
 }
 
@@ -164,9 +164,9 @@ func (components *UIComponents) createStatusComponent() {
 func (components *UIComponents) createKeybindingsComponent() {
 	components.BindingsText = tview.NewTextView().
 		SetDynamicColors(true).
-		SetText(`[white]Request form[-]     [blue]|[-][-][white]Response view[-]        [blue]|[-][white]Saved requests list[-][blue]|[-][white]Server[-]  
-C-f: focus form  [blue]|[-] C-t: focus resp     [blue]|[-] C-l: focus list   [blue]|[-] C-g: focus input     
-C-s: send request[blue]|[-] j/k:scroll    ↑↓    [blue]|[-] j/k:navigate  ↑↓  [blue]|[-] C-x: kill server  
+		SetText(`[white]Request form[-]     [blue]|[-][-][white]Response view[-]        [blue]|[-][white]Saved requests list[-][blue]|[-][white]Server[-]
+C-f: focus form  [blue]|[-] C-t: focus resp     [blue]|[-] C-l: focus list   [blue]|[-] C-g: focus input
+C-s: send request[blue]|[-] j/k:scroll    ↑↓    [blue]|[-] j/k:navigate  ↑↓  [blue]|[-] C-x: kill server
 C-a: save request[blue]|[-][blue]_____________________|[-] C-o: load request [blue]|[-] C-r: start server
 C-n/p: navigate↑↓  C-u: clear form     [blue]|[-] C-d: del request  [blue]|[-]`).
 		SetTextColor(tcell.ColorGray)

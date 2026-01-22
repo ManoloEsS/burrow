@@ -1,4 +1,4 @@
-package paths
+package config
 
 import (
 	"fmt"
@@ -34,19 +34,9 @@ func GetConfigDir() string {
 	return filepath.Dir(GetConfigPath())
 }
 
-func GetDataDir() string {
-	return filepath.Dir(GetDatabasePath())
-}
-
-func GetStateDir() string {
-	return filepath.Dir(GetLogPath())
-}
-
 func EnsureDirectories() error {
 	dirs := []string{
 		GetConfigDir(),
-		GetDataDir(),
-		GetStateDir(),
 		GetCachePath(),
 		GetServerCachePath(),
 	}

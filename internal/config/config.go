@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ManoloEsS/burrow/internal/pkg/paths"
 	"gopkg.in/yaml.v3"
 )
 
@@ -63,11 +62,11 @@ func applyDefaults(cfg *Config) {
 }
 
 func loadFromFile(cfg *Config) error {
-	if !paths.ConfigFileExists() {
+	if !ConfigFileExists() {
 		return os.ErrNotExist
 	}
 
-	configPath, err := paths.SearchConfigFile()
+	configPath, err := SearchConfigFile()
 	if err != nil {
 		return err
 	}
@@ -97,13 +96,13 @@ func loadFromEnv(cfg *Config) {
 
 func resolvePaths(cfg *Config) error {
 	if cfg.Database.Path == "" {
-		cfg.Database.Path = paths.GetDatabasePath()
+		cfg.Database.Path = GetDatabasePath()
 	}
 
-	cfg.Paths.ConfigFile = paths.GetConfigPath()
-	cfg.Paths.LogFile = paths.GetLogPath()
+	cfg.Paths.ConfigFile = GetConfigPath()
+	cfg.Paths.LogFile = GetLogPath()
 
-	if err := paths.EnsureDirectories(); err != nil {
+	if err := EnsureDirectories(); err != nil {
 		return fmt.Errorf("failed to ensure directories: %w", err)
 	}
 

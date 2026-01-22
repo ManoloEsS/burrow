@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ManoloEsS/burrow/internal/pkg/paths"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,13 +20,13 @@ func TestLoad_WithDefaults(t *testing.T) {
 
 	assert.Equal(t, "8080", cfg.App.DefaultPort)
 	assert.Equal(t, "sql/migrations", cfg.Database.MigrationsDir)
-	assert.Equal(t, paths.GetDatabasePath(), cfg.Database.Path)
-	assert.Equal(t, paths.GetConfigPath(), cfg.Paths.ConfigFile)
-	assert.Equal(t, paths.GetLogPath(), cfg.Paths.LogFile)
+	assert.Equal(t, GetDatabasePath(), cfg.Database.Path)
+	assert.Equal(t, GetConfigPath(), cfg.Paths.ConfigFile)
+	assert.Equal(t, GetLogPath(), cfg.Paths.LogFile)
 
 	expectedConnectionString := fmt.Sprintf(
 		"file:%s?cache=shared&mode=rwc&_foreign_keys=on&_busy_timeout=5000&_journal_mode=WAL",
-		paths.GetDatabasePath(),
+		GetDatabasePath(),
 	)
 	assert.Equal(t, expectedConnectionString, cfg.Database.ConnectionString)
 }
@@ -48,17 +47,15 @@ func TestLoad_WithEnvironmentVariables(t *testing.T) {
 	assert.Equal(t, "/tmp/test.db", cfg.Database.Path)
 	assert.Equal(t, "custom/migrations", cfg.Database.MigrationsDir)
 
-	expectedConnectionString := fmt.Sprintf(
-		"file:/tmp/test.db?cache=shared&mode=rwc&_foreign_keys=on&_busy_timeout=5000&_journal_mode=WAL",
-	)
+	expectedConnectionString := "file:/tmp/test.db?cache=shared&mode=rwc&_foreign_keys=on&_busy_timeout=5000&_journal_mode=WAL"
 	assert.Equal(t, expectedConnectionString, cfg.Database.ConnectionString)
 }
 
 func TestLoad_WithConfigFile(t *testing.T) {
 	clearEnvVars()
 
-	configPath := paths.GetConfigPath()
-	configDir := paths.GetConfigDir()
+	configPath := GetConfigPath()
+	configDir := GetConfigDir()
 
 	err := os.MkdirAll(configDir, 0755)
 	assert.NoError(t, err)
@@ -85,8 +82,8 @@ database:
 func TestLoad_EnvironmentOverridesConfig(t *testing.T) {
 	clearEnvVars()
 
-	configPath := paths.GetConfigPath()
-	configDir := paths.GetConfigDir()
+	configPath := GetConfigPath()
+	configDir := GetConfigDir()
 
 	err := os.MkdirAll(configDir, 0755)
 	assert.NoError(t, err)

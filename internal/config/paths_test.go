@@ -1,4 +1,4 @@
-package paths
+package config
 
 import (
 	"testing"
@@ -22,12 +22,6 @@ func TestGetLogPath(t *testing.T) {
 	path := GetLogPath()
 	assert.NotEmpty(t, path)
 	assert.Contains(t, path, "burrow_log")
-}
-
-func TestGetCachePath(t *testing.T) {
-	path := GetCachePath()
-	assert.NotEmpty(t, path)
-	assert.Contains(t, path, "burrow")
 }
 
 func TestGetServerCachePath(t *testing.T) {

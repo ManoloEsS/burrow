@@ -1,9 +1,9 @@
 command:
-  build: go build -gcflags="all=-N -l" -o ./tmp/tui.run ./cmd/cli
+  build: go build -gcflags="all=-N -l" -o ./tmp/tui.run ./cmd/burrow
   exec: ./tmp/tui.run
 watch:
   folders:
-    - "./cmd/cli/"
+    - "./cmd/burrow/"
     - "./internal/tui/"
     - "./internal/domain/"
     - "./internal/database/"

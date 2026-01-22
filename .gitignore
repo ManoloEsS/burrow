@@ -43,7 +43,7 @@ internal/database/queries.go
 *.logs
 
 # Build artifacts (now uses XDG cache for servers)
-burrow
+burrow.bin
 
 # Editor/IDE
 # .idea/
