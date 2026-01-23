@@ -1,3 +1,10 @@
+CREATE TABLE schema_migrations (
+		version TEXT PRIMARY KEY,
+		filename TEXT NOT NULL,
+		applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		is_embedded BOOLEAN NOT NULL DEFAULT FALSE
+	);
+
 CREATE TABLE request_blobs (
   name TEXT PRIMARY KEY,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
