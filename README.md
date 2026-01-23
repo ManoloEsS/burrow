@@ -102,14 +102,9 @@ app:
 # Database Settings  
 database:
   path: ""
-  migrations_dir: "sql/migrations"
   # Path to SQLite database file
   # Leave empty to use XDG default: ~/.local/share/burrow/burrow.db
   # Environment variable: DB_FILE
-  #
-  # Directory containing database migration files
-  # Usually relative to project root
-  # Environment variable: GOOSE_MIGRATIONS_DIR
 ```
 
 #### Environment Variables
@@ -117,7 +112,7 @@ You can also set these values using environment variables:
  
 DEFAULT_PORT - Override the default port (default: 8080)
 DB_FILE - Override database path (default: ~/.local/share/burrow/burrow.db)  
-GOOSE_MIGRATIONS_DIR - Override migrations directory (default: sql/migrations)
+GOOSE_MIGRATIONS_DIR - Override migrations directory (deprecated, for development only)
 
 You can override settings with environment variables:
 ```bash

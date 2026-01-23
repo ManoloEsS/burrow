@@ -11,7 +11,6 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/pressly/goose/v3"
 )
 
 type Database struct {
@@ -38,15 +37,18 @@ func NewDatabase(dbPath, dbString, dbMigrations string) (*Database, error) {
 		return nil, fmt.Errorf("could not ping database: %w", err)
 	}
 
-	if err := goose.SetDialect("sqlite3"); err != nil {
-		return nil, fmt.Errorf("could not set goose dialect: %w", err)
+	migrationRunner := NewMigrationRunner(db, dbMigrations)
+	if err := migrationRunner.LoadMigrations(); err != nil {
+		return nil, fmt.Errorf("failed to load migrations: %w", err)
 	}
-	if err := goose.Up(db, dbMigrations); err != nil {
+	if err := migrationRunner.Up(); err != nil {
 		return nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
-	if err := dumpSchema(db, "sql/schema/schema.sql"); err != nil {
-		return nil, fmt.Errorf("failed to dump schema: %w", err)
+	if isRunningFromSource() {
+		if err := dumpSchema(db, "sql/schema/schema.sql"); err != nil {
+			log.Printf("Warning: failed to dump schema: %v", err)
+		}
 	}
 
 	queries := New(db)
@@ -89,6 +91,27 @@ AND name NOT IN ('goose_db_version','sqlite_sequence');`)
 
 func (db *Database) Close() error {
 	return db.DB.Close()
+}
+
+func isRunningFromSource() bool {
+	exePath, err := os.Executable()
+	if err != nil {
+		return false
+	}
+
+	exeDir := filepath.Dir(exePath)
+
+	goModPath := filepath.Join(exeDir, "go.mod")
+	if _, err := os.Stat(goModPath); err == nil {
+		return true
+	}
+
+	goModPath = filepath.Join(filepath.Dir(exeDir), "go.mod")
+	if _, err := os.Stat(goModPath); err == nil {
+		return true
+	}
+
+	return false
 }
 
 func (db *Database) WithContext(ctx context.Context, timeoutSec time.Duration) (context.Context, context.CancelFunc) {

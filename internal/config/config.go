@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -57,7 +58,7 @@ func Load() (*Config, error) {
 
 func applyDefaults(cfg *Config) {
 	cfg.App.DefaultPort = "8080"
-	cfg.Database.MigrationsDir = "sql/migrations"
+	cfg.Database.MigrationsDir = ""
 	cfg.Database.Path = ""
 }
 
@@ -88,7 +89,9 @@ func loadFromEnv(cfg *Config) {
 		cfg.Database.Path = dbPath
 	}
 
+	// GOOSE_MIGRATIONS_DIR is deprecated but still supported for development
 	if migrationsDir := os.Getenv("GOOSE_MIGRATIONS_DIR"); migrationsDir != "" {
+		log.Printf("Warning: GOOSE_MIGRATIONS_DIR is deprecated. Migrations are now embedded.")
 		cfg.Database.MigrationsDir = migrationsDir
 	}
 
@@ -125,8 +128,11 @@ func validate(cfg *Config) error {
 		return fmt.Errorf("default port cannot be empty")
 	}
 
-	if cfg.Database.MigrationsDir == "" {
-		return fmt.Errorf("migrations directory cannot be empty")
+	// migrations_dir is now optional (embedded migrations are default)
+	if cfg.Database.MigrationsDir != "" {
+		if _, err := os.Stat(cfg.Database.MigrationsDir); os.IsNotExist(err) {
+			return fmt.Errorf("migrations directory does not exist: %s", cfg.Database.MigrationsDir)
+		}
 	}
 
 	return nil
