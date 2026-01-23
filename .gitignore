@@ -36,9 +36,6 @@ go.work.sum
 # SQLC files
 internal/database/queries.go
 
-# Goose logs
-/goose_db_version
-
 # logs (now uses XDG state directory)
 *.logs
 

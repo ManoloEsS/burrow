@@ -1,4 +1,4 @@
--- +goose Up
+-- +migrate Up
 CREATE TABLE IF NOT EXISTS request_blobs (
   name TEXT PRIMARY KEY,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS request_blobs (
   request_json TEXT NOT_NULL
 );
 
--- +goose Down
-DROP TABLE IF EXISTS requests;
+-- +migrate Down
+DROP TABLE IF EXISTS request_blobs;

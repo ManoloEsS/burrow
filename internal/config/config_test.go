@@ -19,7 +19,6 @@ func TestLoad_WithDefaults(t *testing.T) {
 	assert.NotNil(t, cfg)
 
 	assert.Equal(t, "8080", cfg.App.DefaultPort)
-	assert.Equal(t, "sql/migrations", cfg.Database.MigrationsDir)
 	assert.Equal(t, GetDatabasePath(), cfg.Database.Path)
 	assert.Equal(t, GetConfigPath(), cfg.Paths.ConfigFile)
 	assert.Equal(t, GetLogPath(), cfg.Paths.LogFile)
@@ -36,7 +35,6 @@ func TestLoad_WithEnvironmentVariables(t *testing.T) {
 
 	os.Setenv("DEFAULT_PORT", "3000")
 	os.Setenv("DB_FILE", "/tmp/test.db")
-	os.Setenv("GOOSE_MIGRATIONS_DIR", "custom/migrations")
 
 	defer clearEnvVars()
 
@@ -45,7 +43,6 @@ func TestLoad_WithEnvironmentVariables(t *testing.T) {
 
 	assert.Equal(t, "3000", cfg.App.DefaultPort)
 	assert.Equal(t, "/tmp/test.db", cfg.Database.Path)
-	assert.Equal(t, "custom/migrations", cfg.Database.MigrationsDir)
 
 	expectedConnectionString := "file:/tmp/test.db?cache=shared&mode=rwc&_foreign_keys=on&_busy_timeout=5000&_journal_mode=WAL"
 	assert.Equal(t, expectedConnectionString, cfg.Database.ConnectionString)
@@ -65,7 +62,6 @@ func TestLoad_WithConfigFile(t *testing.T) {
   default_port: "9000"
 database:
   path: "/custom/path/db.sqlite"
-  migrations_dir: "custom/migrations"
 `
 	err = os.WriteFile(configPath, []byte(configContent), 0644)
 	assert.NoError(t, err)
@@ -76,7 +72,6 @@ database:
 
 	assert.Equal(t, "9000", cfg.App.DefaultPort)
 	assert.Equal(t, "/custom/path/db.sqlite", cfg.Database.Path)
-	assert.Equal(t, "custom/migrations", cfg.Database.MigrationsDir)
 }
 
 func TestLoad_EnvironmentOverridesConfig(t *testing.T) {
@@ -112,8 +107,7 @@ func TestValidate_MissingDatabasePath(t *testing.T) {
 	cfg := &Config{
 		App: AppConfig{DefaultPort: "8080"},
 		Database: DatabaseConfig{
-			Path:          "",
-			MigrationsDir: "sql/migrations",
+			Path: "",
 		},
 	}
 
@@ -126,8 +120,7 @@ func TestValidate_MissingDefaultPort(t *testing.T) {
 	cfg := &Config{
 		App: AppConfig{DefaultPort: ""},
 		Database: DatabaseConfig{
-			Path:          "/path/to/db.sqlite",
-			MigrationsDir: "sql/migrations",
+			Path: "/path/to/db.sqlite",
 		},
 	}
 
@@ -145,7 +138,7 @@ func TestGenerateDbString(t *testing.T) {
 }
 
 func clearEnvVars() {
-	envVars := []string{"DEFAULT_PORT", "DB_FILE", "GOOSE_MIGRATIONS_DIR"}
+	envVars := []string{"DEFAULT_PORT", "DB_FILE"}
 	for _, env := range envVars {
 		os.Unsetenv(env)
 	}

@@ -19,7 +19,7 @@ func main() {
 		log.Fatalf("Configuration error: %v", err)
 	}
 
-	db, err := database.NewDatabase(cfg.Database.Path, cfg.Database.ConnectionString, cfg.Database.MigrationsDir)
+	db, err := database.NewDatabase(cfg.Database.Path, cfg.Database.ConnectionString)
 	if err != nil {
 		log.Fatalf("Could not initialize database: %v", err)
 	}

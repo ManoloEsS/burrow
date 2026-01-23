@@ -5,9 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 
@@ -18,27 +15,22 @@ import (
 var migrationFS embed.FS
 
 type Migration struct {
-	Version    string
-	Filename   string
-	UpSQL      string
-	DownSQL    string
-	AppliedAt  *time.Time
-	IsApplied  bool
-	IsEmbedded bool
+	Version   string
+	Filename  string
+	UpSQL     string
+	DownSQL   string
+	AppliedAt *time.Time
+	IsApplied bool
 }
 
 type MigrationRunner struct {
-	db           *sql.DB
-	migrations   []Migration
-	useEmbedded  bool
-	externalPath string
+	db         *sql.DB
+	migrations []Migration
 }
 
-func NewMigrationRunner(db *sql.DB, externalPath string) *MigrationRunner {
+func NewMigrationRunner(db *sql.DB, _ string) *MigrationRunner {
 	return &MigrationRunner{
-		db:           db,
-		externalPath: externalPath,
-		useEmbedded:  externalPath == "",
+		db: db,
 	}
 }
 
@@ -47,20 +39,7 @@ func (mr *MigrationRunner) LoadMigrations() error {
 		return fmt.Errorf("failed to load embedded migrations: %w", err)
 	}
 
-	if mr.externalPath != "" {
-		if _, err := os.Stat(mr.externalPath); err == nil {
-			if err := mr.loadExternalMigrations(); err != nil {
-				log.Printf("Warning: failed to load external migrations: %v", err)
-			}
-		}
-	}
-
-	sort.Slice(mr.migrations, func(i, j int) bool {
-		return mr.migrations[i].Version < mr.migrations[j].Version
-	})
-
-	log.Printf("Loaded %d migrations (embedded: %t, external: %s)",
-		len(mr.migrations), mr.useEmbedded, mr.externalPath)
+	log.Printf("Loaded %d embedded migrations", len(mr.migrations))
 
 	return nil
 }
@@ -78,53 +57,24 @@ func (mr *MigrationRunner) loadEmbeddedMigrations() error {
 		return fmt.Errorf("failed to parse embedded migration: %w", err)
 	}
 
-	migration.IsEmbedded = true
 	mr.migrations = append(mr.migrations, migration)
 
 	log.Printf("Successfully loaded embedded migration: %s", migrationFile)
 	return nil
 }
 
-func (mr *MigrationRunner) loadExternalMigrations() error {
-	entries, err := os.ReadDir(mr.externalPath)
-	if err != nil {
-		return fmt.Errorf("failed to read external migrations: %w", err)
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".sql") {
-			continue
-		}
-
-		content, err := os.ReadFile(filepath.Join(mr.externalPath, entry.Name()))
-		if err != nil {
-			return fmt.Errorf("failed to read external migration %s: %w", entry.Name(), err)
-		}
-
-		migration, err := mr.parseMigration(entry.Name(), string(content))
-		if err != nil {
-			return fmt.Errorf("failed to parse external migration %s: %w", entry.Name(), err)
-		}
-
-		migration.IsEmbedded = false
-		mr.migrations = append(mr.migrations, migration)
-	}
-
-	return nil
-}
-
 func (mr *MigrationRunner) parseMigration(filename, content string) (Migration, error) {
 	version := strings.Split(filename, "_")[0]
 
-	parts := strings.Split(content, "-- +goose Down")
+	parts := strings.Split(content, "-- +migrate Down")
 	if len(parts) != 2 {
-		return Migration{}, fmt.Errorf("migration %s missing -- +goose Down marker", filename)
+		return Migration{}, fmt.Errorf("migration %s missing -- +migrate Down marker", filename)
 	}
 
 	upSQL := strings.TrimSpace(parts[0])
 	downSQL := strings.TrimSpace(parts[1])
 
-	upSQL = strings.Replace(upSQL, "-- +goose Up", "", 1)
+	upSQL = strings.Replace(upSQL, "-- +migrate Up", "", 1)
 	upSQL = strings.TrimSpace(upSQL)
 
 	return Migration{
@@ -140,8 +90,7 @@ func (mr *MigrationRunner) EnsureMigrationTable() error {
 	CREATE TABLE IF NOT EXISTS schema_migrations (
 		version TEXT PRIMARY KEY,
 		filename TEXT NOT NULL,
-		applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		is_embedded BOOLEAN NOT NULL DEFAULT FALSE
+		applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	)`
 
 	_, err := mr.db.Exec(query)
@@ -206,10 +155,10 @@ func (mr *MigrationRunner) applyMigration(migration Migration) error {
 	}
 
 	insertQuery := `
-	INSERT INTO schema_migrations (version, filename, is_embedded) 
-	VALUES (?, ?, ?)`
+	INSERT INTO schema_migrations (version, filename) 
+	VALUES (?, ?)`
 
-	if _, err := tx.Exec(insertQuery, migration.Version, migration.Filename, migration.IsEmbedded); err != nil {
+	if _, err := tx.Exec(insertQuery, migration.Version, migration.Filename); err != nil {
 		return fmt.Errorf("failed to record migration: %w", err)
 	}
 

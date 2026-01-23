@@ -82,7 +82,7 @@ Burrow uses XDG Base Directory Specification for file storage and supports YAML 
 
 #### Configuration Priority
 1. Config file: `~/.config/burrow/config.yaml` (if exists)
-2. Environment variables: `DEFAULT_PORT`, `DB_FILE`, `GOOSE_MIGRATIONS_DIR`
+2. Environment variables: `DEFAULT_PORT`, `DB_FILE`
 3. Sensible defaults: Port 8080, XDG paths for storage
 
 #### File Locations
@@ -110,9 +110,8 @@ database:
 #### Environment Variables
 You can also set these values using environment variables:
  
-DEFAULT_PORT - Override the default port (default: 8080)
+DEFAULT_PORT - Override of default port (default: 8080)
 DB_FILE - Override database path (default: ~/.local/share/burrow/burrow.db)  
-GOOSE_MIGRATIONS_DIR - Override migrations directory (deprecated, for development only)
 
 You can override settings with environment variables:
 ```bash
