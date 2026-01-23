@@ -13,17 +13,6 @@ Do like a gopher and cozy up in a burrow where you have all you need to develop 
 go install github.com/ManoloEsS/burrow@latest
 ```
 
-## Quick Start
-To test the program:
-- Download the test_go_server.go file
-```bash
-cd <path where file is>
-burrow
-```
-- Press `Control + g` to focus the server path input and type `test_go_server.go`
-- Press `Control + r` to run the server file, it will attach to localhost:8080 (make sure the port is not being used)
-- Press `Control + s` to send a get request to `http://localhost:8080` (the default url)
-
 ## Usage
 
 ### Basic Commands
@@ -81,7 +70,9 @@ For endpoints you can type the full URL or `/someendpoint`:
 
 ### General Server Usage
 Burrow will use the working directory where it was launched as the base for the relative path of the server path input.
+
 If starting burrow in directory `home/app`, the input `server.go` will look for that file name in `./server.go`
+
 To access the same file from a different directory you will need to input `home/app/server.go`
 
 Currently Burrow only supports go servers.
