@@ -1,6 +1,7 @@
 # Burrow
 
 ### A terminal-based HTTP client and go server manager for API testing.
+![Burrow](assets/burrow.gif)
 
 ## Overview
 Burrow is a terminal-based client for managing and sending HTTP requests, as well as running and monitoring go servers.
