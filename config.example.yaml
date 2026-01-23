@@ -8,20 +8,12 @@
 # Application Settings
 app:
   default_port: "8080"
-  # default port to send http requests with empty url input
+  # Default port to send http requests with empty url input
 
-# Database Settings  
 database:
   path: ""
   # Path to SQLite database file
   # Leave empty to use XDG default: ~/.local/share/burrow/burrow.db
-  # Environment variable: DB_FILE
-  #
-  # Database migrations are embedded in the binary.
-  # No external migration files needed.
-
-# Note: The database connection string is automatically generated
-# from the path. You don't need to configure it manually.
 
 ---
 # Environment Variable Overrides

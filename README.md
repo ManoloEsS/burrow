@@ -1,19 +1,26 @@
 # Burrow
 
-### A terminal-based HTTP client and go server launcher for API testing.
+### A terminal-based HTTP client and go server manager for API testing.
 
 ## Overview
-Burrow is a TUI for creating, saving, and managing HTTP requests, as well as running and monitoring go servers.
+Burrow is a terminal-based client for managing and sending HTTP requests, as well as running and monitoring go servers.
 Do like a gopher and cozy up in a burrow where you have all you need to develop your API directly from your terminal.
 
 ## Installation
 
 ### Go Install
 ```bash
-go install github.com/ManoloEsS/burrow@latest
+go install github.com/ManoloEsS/burrow/cmd/burrow@latest
 ```
 
 ## Usage
+### Quick start
+- After installing, copy the `test_go_server.go` file in the test_server directory to any directory.
+- `cd` to that directory and run `burrow`
+- Use `Ctrl-G` to focus the server path input and type `test_go_server.go`
+- Use `Ctrl-R` to start the server (make sure port 8080 is not being used)
+- Use `Ctrl-S` to send a request, leaving all fields empty
+- You'll see the response from the test server in the Response field
 
 ### Basic Commands
 
@@ -54,12 +61,15 @@ http://somewebsite.com
 https://somewebsite.com
 ```
 
-URLs without protocol part will be added `https://`
+URLs without a protocol part will be added `https://`
 
 To send requests to local ports you can type:
 ```
 :3030
 # will send request to http://localhost:3030
+
+:3030/foobar
+# will send request to http://localhost:3030/foobar
 ```
 
 For endpoints you can type the full URL or `/someendpoint`:
@@ -73,7 +83,7 @@ Burrow will use the working directory where it was launched as the base for the 
 
 If starting burrow in directory `home/app`, the input `server.go` will look for that file name in `./server.go`
 
-To access the same file from a different directory you will need to input `home/app/server.go`
+To access the same file from a different directory you will need to input the absolute path: `home/app/server.go`
 
 Currently Burrow only supports go servers.
 
@@ -97,14 +107,12 @@ Copy `config.example.yaml` to `~/.config/burrow/config.yaml` and customize:
 ```yaml
 app:
   default_port: "8080"
-  # default port to send http requests with empty url input
+  # Default port to send http requests with empty url input
 
-# Database Settings  
 database:
   path: ""
   # Path to SQLite database file
   # Leave empty to use XDG default: ~/.local/share/burrow/burrow.db
-  # Environment variable: DB_FILE
 ```
 
 #### Environment Variables
@@ -115,7 +123,7 @@ DB_FILE - Override database path (default: ~/.local/share/burrow/burrow.db)
 
 You can override settings with environment variables:
 ```bash
-DEFAULT_PORT=3000 DB_FILE=/tmp/my.db burrow
+DEFAULT_PORT=3000
 DB_FILE=/tmp/mydb.db burrow
 ```
 
@@ -158,5 +166,5 @@ MIT License
 A: This program is meant to be used by students and developers that work with go servers.
 
 **Q: I'm not a neovim user, can I navigate with my mouse?**
-A: Yes, burrow is designed to be fully keyboard-driven, however tview offers mouse support.
+A: Yes, burrow is designed to be fully keyboard-driven, however tview offers mouse support as well.
 
