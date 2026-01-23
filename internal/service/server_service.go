@@ -139,8 +139,8 @@ func (s *serverService) buildBinary(path string) error {
 	binaryPath := filepath.Join(cacheDir, binaryName)
 
 	cmd := exec.Command("go", "build", "-o", binaryPath, "-trimpath", path)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = nil
+	cmd.Stderr = nil
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("build failed: %v", err)
@@ -157,8 +157,8 @@ func (s *serverService) runCmdFromPath(ctx context.Context) (*exec.Cmd, error) {
 	}
 
 	cmd := exec.CommandContext(ctx, s.binaryPath)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = nil
+	cmd.Stderr = nil
 
 	if err := cmd.Start(); err != nil {
 		return nil, err
