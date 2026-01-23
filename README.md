@@ -7,6 +7,10 @@
 Burrow is a terminal-based client for managing and sending HTTP requests, as well as running and monitoring go servers.
 Do like a gopher and cozy up in a burrow where you have all you need to develop your API directly from your terminal.
 
+## Motivation
+Burrow can be used as an API client similar to [Postman](https://www.postman.com/) or [Atac](https://github.com/Julien-cpsn/ATAC).
+The added server functionality is meant to enable students and developers to easily run a go server and test it from the same environment.
+
 ## Installation
 
 ### Go Install
@@ -17,7 +21,10 @@ go install github.com/ManoloEsS/burrow/cmd/burrow@latest
 ## Usage
 ### Quick start
 - After installing, copy the `test_go_server.go` file in the test_server directory to any directory.
-- `cd` to that directory and run `burrow`
+- `cd` to that directory and run
+  ```bash
+  burrow
+  ```
 - Use `Ctrl-G` to focus the server path input and type `test_go_server.go`
 - Use `Ctrl-R` to start the server (make sure port 8080 is not being used)
 - Use `Ctrl-S` to send a request, leaving all fields empty
@@ -50,9 +57,6 @@ go install github.com/ManoloEsS/burrow/cmd/burrow@latest
 - Ctrl-C - Close program
 
 ### General HTTP Client Usage
-Burrow can be used as an API client similar to [Postman](https://www.postman.com/) or [Atac](https://github.com/Julien-cpsn/ATAC).
-The added server functionality is meant to enable students and developers to easily run a go server and test it from the same environment.
-
 The default port http requests are sent to with an empty url field is `8080`, so in order to test your server make sure it attaches to `localhost:8080` or modify the config file to your preferred port. 
 
 The URL field can be used in the following ways:
