@@ -14,6 +14,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+//go:embed migrations/001_create_requests_table.sql
 var migrationFS embed.FS
 
 type Migration struct {
@@ -65,30 +66,22 @@ func (mr *MigrationRunner) LoadMigrations() error {
 }
 
 func (mr *MigrationRunner) loadEmbeddedMigrations() error {
-	entries, err := migrationFS.ReadDir("migrations")
+	migrationFile := "migrations/001_create_requests_table.sql"
+
+	content, err := migrationFS.ReadFile(migrationFile)
 	if err != nil {
-		return fmt.Errorf("failed to read embedded migrations: %w", err)
+		return fmt.Errorf("failed to read embedded migration: %w", err)
 	}
 
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".sql") {
-			continue
-		}
-
-		content, err := migrationFS.ReadFile(filepath.Join("migrations", entry.Name()))
-		if err != nil {
-			return fmt.Errorf("failed to read embedded migration %s: %w", entry.Name(), err)
-		}
-
-		migration, err := mr.parseMigration(entry.Name(), string(content))
-		if err != nil {
-			return fmt.Errorf("failed to parse embedded migration %s: %w", entry.Name(), err)
-		}
-
-		migration.IsEmbedded = true
-		mr.migrations = append(mr.migrations, migration)
+	migration, err := mr.parseMigration("001_create_requests_table.sql", string(content))
+	if err != nil {
+		return fmt.Errorf("failed to parse embedded migration: %w", err)
 	}
 
+	migration.IsEmbedded = true
+	mr.migrations = append(mr.migrations, migration)
+
+	log.Printf("Successfully loaded embedded migration: %s", migrationFile)
 	return nil
 }
 
