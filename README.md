@@ -19,7 +19,7 @@ go install github.com/ManoloEsS/burrow/cmd/burrow@latest
 ```
 
 ## Usage
-### Quick start
+### Quick Start
 - After installing, copy the `test_go_server.go` file in the test_server directory to any directory.
 - `cd` to that directory and run
   ```bash
