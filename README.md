@@ -54,8 +54,6 @@ go install github.com/ManoloEsS/burrow/cmd/burrow@latest
 - Ctrl-R - Start server 
 - Ctrl-X - Kill server
 
-- Ctrl-C - Close program
-
 ### General HTTP Client Usage
 The default port http requests are sent to with an empty url field is `8080`, so in order to test your server make sure it attaches to `localhost:8080` or modify the config file to your preferred port. 
 
