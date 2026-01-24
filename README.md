@@ -88,6 +88,11 @@ If starting burrow in directory `home/app`, the input `server.go` will look for 
 
 To access the same file from a different directory you will need to input the absolute path: `home/app/server.go`
 
+#### Health Checker
+When a server is started a health checker go routine will start. This go routine sends a get request to the `/health` endpoint
+of the server every 5 seconds.
+For the health checker to work correctly make sure your server has a `/health` handler.
+
 Currently Burrow only supports go servers.
 
 ## Configuration
