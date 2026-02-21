@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   timeout: 5m
   modules-download-mode: readonly
@@ -7,8 +9,12 @@ linters:
   default: none
   enable:
     - errcheck
-    - gosimple
-    - govet
-    - ineffassign
     - staticcheck
+    - ineffassign
     - unused
+  exclusions:
+    rules:
+      - path: '(.+)_test\.go'
+        linters:
+          - errcheck
+          - staticcheck

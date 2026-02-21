@@ -59,7 +59,7 @@ func (s *httpClientService) SendRequest(req *domain.Request) (*domain.Response, 
 	if err != nil {
 		return &domain.Response{}, err
 	}
-	defer httpResp.Body.Close()
+	defer func() { _ = httpResp.Body.Close() }()
 
 	responseTime := time.Since(start)
 

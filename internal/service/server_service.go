@@ -174,7 +174,7 @@ func (s *serverService) healthChecker(ctx context.Context) {
 
 	resp, err := s.httpClient.Get(s.healthCheckURL)
 	if resp != nil && resp.Body != nil {
-		resp.Body.Close()
+		_ = resp.Body.Close()
 	}
 	if err != nil || resp.StatusCode != 200 {
 		if err != nil {
@@ -195,7 +195,7 @@ func (s *serverService) healthChecker(ctx context.Context) {
 		case <-ticker.C:
 			resp, err := s.httpClient.Get(s.healthCheckURL)
 			if resp != nil && resp.Body != nil {
-				resp.Body.Close()
+				_ = resp.Body.Close()
 			}
 			if err != nil || resp.StatusCode != 200 {
 				if err != nil {

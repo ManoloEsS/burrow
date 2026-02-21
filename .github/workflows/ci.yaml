@@ -4,16 +4,31 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.6
+
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '1.25'
 
@@ -30,12 +45,6 @@ jobs:
             gofmt -l .
             exit 1
           fi
-
-      - name: Run linter
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v2
-          install-mode: goroutine
 
       - name: Build
         run: go build -o burrow ./cmd/burrow

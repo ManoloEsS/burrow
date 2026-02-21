@@ -58,9 +58,9 @@ func (db *Database) Close() error {
 	return db.DB.Close()
 }
 
-func (db *Database) WithContext(ctx context.Context, timeoutSec time.Duration) (context.Context, context.CancelFunc) {
-	if timeoutSec <= 0 {
-		timeoutSec = 30
+func (db *Database) WithContext(ctx context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {
+	if timeout <= 0 {
+		timeout = 30
 	}
-	return context.WithTimeout(ctx, timeoutSec)
+	return context.WithTimeout(ctx, timeout)
 }

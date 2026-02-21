@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not initialize database: %v", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	ui := tui.NewTui(cfg)
 
@@ -48,7 +48,7 @@ func setupShutdown(db *database.Database) {
 	go func() {
 		<-c
 		log.Println("Shutting down database safely")
-		db.Close()
+		_ = db.Close()
 		os.Exit(0)
 	}()
 }
