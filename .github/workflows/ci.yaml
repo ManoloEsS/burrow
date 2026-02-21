@@ -35,6 +35,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
+          install-mode: goroutine
 
       - name: Build
         run: go build -o burrow ./cmd/burrow
