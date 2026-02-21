@@ -25,7 +25,7 @@ func main() {
 
 func handlerDefault(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`Welcome to burrow!
+	if _, err := w.Write([]byte(`Welcome to burrow!
 
 You successfully started a server file and got an http response from it!
 Keybindings are above.
@@ -35,15 +35,21 @@ You can send requests to any url, save, load and delete requests.
 If you have a go http server you can write the path to the file and start it.
 
 Try it out!
-`))
+`)); err != nil {
+		log.Printf("write error: %v", err)
+	}
 }
 
 func handlerHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(http.StatusText(http.StatusOK)))
+	if _, err := w.Write([]byte(http.StatusText(http.StatusOK))); err != nil {
+		log.Printf("write error: %v", err)
+	}
 }
 
 func handlerMonch(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("hello monchichi"))
+	if _, err := w.Write([]byte("hello monchichi")); err != nil {
+		log.Printf("write error: %v", err)
+	}
 }

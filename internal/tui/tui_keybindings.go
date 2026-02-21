@@ -96,11 +96,6 @@ func (tui *Tui) focusServerInput() {
 	tui.Ui.SetFocus(tui.Components.ServerPath)
 }
 
-func (tui *Tui) focusRequestNameInput() {
-	tui.State.CurrentFocused = tui.Components.NameInput
-	tui.Ui.SetFocus(tui.Components.NameInput)
-}
-
 func (tui *Tui) focusRequestList() {
 	tui.State.CurrentFocused = tui.Components.RequestList
 	tui.Ui.SetFocus(tui.Components.RequestList)

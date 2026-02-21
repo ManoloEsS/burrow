@@ -51,10 +51,7 @@ func (tui *Tui) handleServerEvent(event service.UIEvent) {
 }
 
 func (tui *Tui) serverUpdateListener() {
-	for {
-		select {
-		case event := <-tui.ServerUpdateChannel:
-			tui.handleServerEvent(event)
-		}
+	for event := range tui.ServerUpdateChannel {
+		tui.handleServerEvent(event)
 	}
 }

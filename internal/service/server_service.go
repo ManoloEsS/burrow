@@ -262,7 +262,7 @@ func (s *serverService) gracefulShutdown() {
 			} else {
 				s.sendEvent("update", "server process force killed")
 			}
-			process.Wait()
+			_ = process.Wait()
 		}
 	}
 

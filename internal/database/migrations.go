@@ -148,7 +148,7 @@ func (mr *MigrationRunner) applyMigration(migration Migration) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	if _, err := tx.Exec(migration.UpSQL); err != nil {
 		return fmt.Errorf("failed to execute migration SQL: %w", err)

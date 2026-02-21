@@ -144,7 +144,6 @@ func (components *UIComponents) createFormAndSetup() {
 	if bodyDropDown, ok := bodyFormItem.(*tview.DropDown); ok {
 		components.BodyType = bodyDropDown
 		components.BodyType.SetCurrentOption(0)
-	} else {
 	}
 
 }
