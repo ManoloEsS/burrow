@@ -1,5 +1,7 @@
 # Burrow
 
+![Tests](https://github.com/ManoloEsS/burrow/actions/workflows/ci.yaml/badge.svg)
+
 ### A terminal-based HTTP client and go server manager for API testing.
 ![Burrow](assets/burrow.gif)
 
