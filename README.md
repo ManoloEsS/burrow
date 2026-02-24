@@ -1,5 +1,7 @@
 # Burrow
 
+[![CI](https://github.com/ManoloEsS/burrow/actions/workflows/ci.yaml/badge.svg)](https://github.com/ManoloEsS/burrow/actions/workflows/ci.yaml)
+
 **Terminal-based HTTP Client and Go Server Manager**
 
 Burrow is a keyboard-driven TUI application for building and sending HTTP requests while running and monitoring Go servers — all from your terminal.
