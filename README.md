@@ -5,7 +5,7 @@
 Burrow is a keyboard-driven TUI application for building and sending HTTP requests while running and monitoring Go servers — all from your terminal.
 
 It is designed as a lightweight, terminal-native alternative to tools like Postman or Insomnia, built specifically for Go developers.
-
+![Burrow](assets/burrow.gif)
 ## Overview
 
 When developing APIs in Go, you often:
