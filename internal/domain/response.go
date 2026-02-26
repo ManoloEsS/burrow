@@ -1,9 +1,12 @@
 package domain
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -26,6 +29,17 @@ func (resp *Response) BuildResponse(httpR *http.Response) error {
 			resp.Body = fmt.Sprintf("Error reading body: %v", err)
 			return err
 		}
+
+		if strings.HasPrefix(resp.ContentType, "application/json") {
+			var prettyJson bytes.Buffer
+			if err := json.Indent(&prettyJson, bodyBytes, "", " "); err != nil {
+				resp.Body = fmt.Sprintf("Error prettyfying JSON body: %v", err)
+				return err
+			}
+			resp.Body = prettyJson.String()
+			return nil
+		}
+
 		resp.Body = string(bodyBytes)
 		return nil
 	}
