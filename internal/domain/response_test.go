@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -24,7 +26,7 @@ func TestBuildResponse(t *testing.T) {
 			status:         "200 OK",
 			statusCode:     200,
 			contentType:    "application/json",
-			body:           `{"message": "success"}`,
+			body:           "{\n \"message\": \"success\"\n}",
 			expectedStatus: "200 OK",
 			expectedType:   "application/json",
 		},
@@ -58,7 +60,16 @@ func TestBuildResponse(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, resp.Status)
 			assert.Equal(t, tt.expectedType, resp.ContentType)
 			assert.Equal(t, int64(len(tt.body)), resp.ContentLenght)
-			assert.Equal(t, tt.body, resp.Body)
+			if strings.HasPrefix(tt.contentType, "application/json") {
+				var prettyJson bytes.Buffer
+				if err := json.Indent(&prettyJson, []byte(tt.body), "", " "); err != nil {
+					assert.Equal(t, tt.body, resp.Body)
+				} else {
+					assert.Equal(t, prettyJson.String(), resp.Body)
+				}
+			} else {
+				assert.Equal(t, tt.body, resp.Body)
+			}
 		})
 	}
 }
