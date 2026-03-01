@@ -112,7 +112,7 @@ func (s *httpClientService) GetSavedRequests() ([]*domain.Request, error) {
 	return reqs, nil
 }
 
-func requestJSONToStruct(jsonData interface{}) (*domain.Request, error) {
+func requestJSONToStruct(jsonData any) (*domain.Request, error) {
 	jsonByte, ok := jsonData.([]byte)
 	if !ok {
 		return nil, fmt.Errorf("expected []byte, got %T", jsonData)

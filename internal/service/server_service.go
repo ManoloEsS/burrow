@@ -89,11 +89,9 @@ func (s *serverService) orchestrator(ctx context.Context) {
 	s.isRunning = true
 	s.serverMu.Unlock()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.healthChecker(healthCheckerCtx)
-	}()
+	})
 
 	timeoutTicker := time.NewTicker(time.Minute * 15)
 
