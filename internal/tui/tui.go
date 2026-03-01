@@ -52,5 +52,5 @@ func (tui *Tui) Initialize() error {
 }
 
 func (tui *Tui) Start() error {
-	return tui.Ui.SetRoot(tui.Components.MainLayout, true).EnableMouse(true).Run()
+	return tui.Ui.SetRoot(tui.Components.Pages, true).EnableMouse(true).Run()
 }

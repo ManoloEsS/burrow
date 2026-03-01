@@ -47,9 +47,6 @@ func (tui *Tui) setupKeybindings() {
 		case tcell.KeyCtrlG:
 			tui.focusServerInput()
 			return nil
-		case tcell.KeyCtrlL:
-			tui.focusRequestList()
-			return nil
 		case tcell.KeyCtrlN:
 			if tui.State.CurrentFocused == tui.Components.Form {
 				tui.navigateForm(true)
@@ -63,17 +60,48 @@ func (tui *Tui) setupKeybindings() {
 				tui.navigateForm(false)
 			}
 			return nil
+		case tcell.KeyEsc:
+			if tui.State.KeybindingsVisible {
+				tui.toggleKeybindingsModal()
+			}
+			return nil
 		case tcell.KeyRune:
 			switch event.Rune() {
+			case 'h':
+				if event.Modifiers()&tcell.ModAlt != 0 {
+					tui.focusLeft()
+					return nil
+				}
+				return event
+			case 'l':
+				if event.Modifiers()&tcell.ModAlt != 0 {
+					tui.focusRight()
+					return nil
+				}
+				return event
 			case 'j':
+				if event.Modifiers()&tcell.ModAlt != 0 {
+					tui.focusDown()
+					return nil
+				}
 				if tui.State.CurrentFocused == tui.Components.RequestList {
 					tui.navigateList(1)
 					return nil
 				}
 				return event
 			case 'k':
+				if event.Modifiers()&tcell.ModAlt != 0 {
+					tui.focusUp()
+					return nil
+				}
 				if tui.State.CurrentFocused == tui.Components.RequestList {
 					tui.navigateList(-1)
+					return nil
+				}
+				return event
+			case 'i':
+				if event.Modifiers()&tcell.ModAlt != 0 {
+					tui.toggleKeybindingsModal()
 					return nil
 				}
 				return event
@@ -87,6 +115,7 @@ func (tui *Tui) setupKeybindings() {
 }
 
 func (tui *Tui) focusForm() {
+	tui.State.CurrentSide = "left"
 	tui.State.CurrentFocused = tui.Components.Form
 	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
 }
@@ -147,4 +176,62 @@ func (tui *Tui) clear() {
 		tui.Components.BodyType.SetCurrentOption(0)
 		tui.Components.BodyText.SetText("", true)
 	})
+}
+
+func (tui *Tui) toggleKeybindingsModal() {
+	tui.State.KeybindingsVisible = !tui.State.KeybindingsVisible
+	if tui.State.KeybindingsVisible {
+		tui.State.LastFocusedBeforeModal = tui.State.CurrentFocused
+		tui.Components.Pages.ShowPage("keybindings")
+	} else {
+		tui.Components.Pages.HidePage("keybindings")
+		if tui.State.LastFocusedBeforeModal != nil {
+			tui.Ui.SetFocus(tui.State.LastFocusedBeforeModal)
+		}
+	}
+}
+
+func (tui *Tui) focusLeft() {
+	tui.State.CurrentSide = "left"
+	tui.State.CurrentFocused = tui.Components.Form
+	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
+}
+
+func (tui *Tui) focusRight() {
+	tui.State.CurrentSide = "right"
+	tui.focusRightComponent(tui.State.CurrentRightComponentIndex)
+}
+
+func (tui *Tui) focusDown() {
+	if tui.State.CurrentSide == "left" {
+		tui.navigateForm(true)
+		return
+	}
+
+	tui.State.CurrentRightComponentIndex = (tui.State.CurrentRightComponentIndex + 1) % 3
+	tui.focusRightComponent(tui.State.CurrentRightComponentIndex)
+}
+
+func (tui *Tui) focusUp() {
+	if tui.State.CurrentSide == "left" {
+		tui.navigateForm(false)
+		return
+	}
+
+	tui.State.CurrentRightComponentIndex = (tui.State.CurrentRightComponentIndex - 1 + 3) % 3
+	tui.focusRightComponent(tui.State.CurrentRightComponentIndex)
+}
+
+func (tui *Tui) focusRightComponent(index int) {
+	switch index {
+	case 0:
+		tui.State.CurrentFocused = tui.Components.ServerPath
+		tui.Ui.SetFocus(tui.Components.ServerPath)
+	case 1:
+		tui.State.CurrentFocused = tui.Components.ResponseView
+		tui.Ui.SetFocus(tui.Components.ResponseView)
+	case 2:
+		tui.State.CurrentFocused = tui.Components.RequestList
+		tui.Ui.SetFocus(tui.Components.RequestList)
+	}
 }
