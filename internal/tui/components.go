@@ -150,7 +150,7 @@ func (components *UIComponents) createFormAndSetup() {
 
 func (components *UIComponents) createLogoComponent() {
 	components.LogoText = tview.NewTextView().SetText(
-		" _ __                      \n( /  )                     \n /--< , , _   _   __ , , , \n/___/(_/_/ (_/ (_(_)(_(_/_ ",
+		"┳┓           \n┣┫┓┏┏┓┏┓┏┓┓┏┏\n┻┛┗┻┛ ┛ ┗┛┗┻┛",
 	).SetTextColor(tcell.ColorBlue)
 }
 
