@@ -118,16 +118,19 @@ func (tui *Tui) focusForm() {
 	tui.State.CurrentSide = "left"
 	tui.State.CurrentFocused = tui.Components.Form
 	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
+	tui.updateBorderColors()
 }
 
 func (tui *Tui) focusServerInput() {
 	tui.State.CurrentFocused = tui.Components.ServerPath
 	tui.Ui.SetFocus(tui.Components.ServerPath)
+	tui.updateBorderColors()
 }
 
 func (tui *Tui) focusResponseView() {
 	tui.State.CurrentFocused = tui.Components.ResponseView
 	tui.Ui.SetFocus(tui.Components.ResponseView)
+	tui.updateBorderColors()
 }
 
 func (tui *Tui) navigateForm(forward bool) {
@@ -190,11 +193,13 @@ func (tui *Tui) focusLeft() {
 	tui.State.CurrentSide = "left"
 	tui.State.CurrentFocused = tui.Components.Form
 	tui.focusSpecificFormComponent(tui.State.CurrentFormFocusIndex)
+	tui.updateBorderColors()
 }
 
 func (tui *Tui) focusRight() {
 	tui.State.CurrentSide = "right"
 	tui.focusRightComponent(tui.State.CurrentRightComponentIndex)
+	tui.updateBorderColors()
 }
 
 func (tui *Tui) focusDown() {
@@ -228,5 +233,27 @@ func (tui *Tui) focusRightComponent(index int) {
 	case 2:
 		tui.State.CurrentFocused = tui.Components.RequestList
 		tui.Ui.SetFocus(tui.Components.RequestList)
+	}
+	tui.updateBorderColors()
+}
+
+func (tui *Tui) updateBorderColors() {
+	blue := tcell.ColorBlue
+	yellow := tcell.ColorYellow
+
+	tui.Components.FormTitle.SetTextColor(blue)
+	tui.Components.ServerInfoBox.SetTitleColor(blue)
+	tui.Components.ResponseView.SetTitleColor(blue)
+	tui.Components.RequestList.SetTitleColor(blue)
+
+	switch tui.State.CurrentFocused {
+	case tui.Components.Form:
+		tui.Components.FormTitle.SetTextColor(yellow)
+	case tui.Components.ServerPath, tui.Components.ServerStatus, tui.Components.StatusText:
+		tui.Components.ServerInfoBox.SetTitleColor(yellow)
+	case tui.Components.ResponseView:
+		tui.Components.ResponseView.SetTitleColor(yellow)
+	case tui.Components.RequestList:
+		tui.Components.RequestList.SetTitleColor(yellow)
 	}
 }

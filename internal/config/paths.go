@@ -8,6 +8,8 @@ import (
 	"github.com/adrg/xdg"
 )
 
+var mkdirAll = os.MkdirAll
+
 const appName = "burrow"
 
 func GetConfigPath() string {
@@ -42,7 +44,7 @@ func EnsureDirectories() error {
 	}
 
 	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := mkdirAll(dir, 0755); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
 	}
