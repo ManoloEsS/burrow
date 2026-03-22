@@ -26,7 +26,7 @@ func main() {
 	defer func() { _ = db.Close() }()
 
 	ui := tui.NewTui(cfg)
-	defer func() { ui.Close() }()
+	defer func() { _ = ui.Close() }()
 
 	ui.HttpService = service.NewHttpClientService(db)
 	ui.ServerService = service.NewServerService()
