@@ -59,6 +59,7 @@ Makefile
 distribution*
 # Build artifacts (server binaries now use XDG cache)
 bin/burrow-server
+bin/
 # CLI executable
 cli
 

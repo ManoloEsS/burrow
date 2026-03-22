@@ -26,6 +26,7 @@ func main() {
 	defer func() { _ = db.Close() }()
 
 	ui := tui.NewTui(cfg)
+	defer ui.Close()
 
 	ui.HttpService = service.NewHttpClientService(db)
 	ui.ServerService = service.NewServerService()
@@ -34,21 +35,19 @@ func main() {
 		log.Fatalf("Failed to initialize UI: %v", err)
 	}
 
-	setupShutdown(db)
+	setupShutdown()
 
 	if err := ui.Start(); err != nil {
 		log.Fatalf("Failed to start application: %v", err)
 	}
 }
 
-func setupShutdown(db *database.Database) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-
+func setupShutdown() {
 	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		<-c
-		log.Println("Shutting down database safely")
-		_ = db.Close()
+		log.Println("Shutdown signal received, exiting...")
 		os.Exit(0)
 	}()
 }

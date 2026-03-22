@@ -10,7 +10,7 @@ func (tui *Tui) setupKeybindings() {
 			go tui.handleSendRequest()
 			return nil
 		case tcell.KeyCtrlQ:
-			tui.Ui.Stop()
+			tui.Stop()
 			return nil
 		case tcell.KeyCtrlA:
 			go tui.handleSaveRequest()
@@ -41,25 +41,6 @@ func (tui *Tui) setupKeybindings() {
 			return nil
 
 		// navigation
-		case tcell.KeyCtrlF:
-			tui.focusForm()
-			return nil
-		case tcell.KeyCtrlG:
-			tui.focusServerInput()
-			return nil
-		case tcell.KeyCtrlN:
-			if tui.State.CurrentFocused == tui.Components.Form {
-				tui.navigateForm(true)
-			}
-			return nil
-		case tcell.KeyCtrlT:
-			tui.focusResponseView()
-			return nil
-		case tcell.KeyCtrlP:
-			if tui.State.CurrentFocused == tui.Components.Form {
-				tui.navigateForm(false)
-			}
-			return nil
 		case tcell.KeyEsc:
 			if tui.State.KeybindingsVisible {
 				tui.toggleKeybindingsModal()

@@ -16,12 +16,13 @@ type UIComponents struct {
 	LogoText         *tview.TextView
 	BindingsText     *tview.TextView
 	KeybindingsModal *tview.Flex
-	InfoText         *tview.TextView // Added: accessible for updates
+	InfoText         *tview.TextView
 	ServerStatus     *tview.TextView
 	ServerPath       *tview.InputField
 	ServerInfoBox    *tview.Flex
 	ResponseView     *tview.TextView
 	RequestList      *tview.List
+	Footer           *tview.TextView
 
 	MethodDropdown *tview.DropDown
 	URLInput       *tview.InputField
@@ -63,6 +64,8 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 
 	components.createStatusComponent()
 
+	components.createFooterComponent()
+
 	serverInfoBox := tview.NewFlex().SetDirection(tview.FlexRow)
 	serverInfoBox.AddItem(components.ServerStatus, 1, 1, false).
 		AddItem(components.ServerPath, 1, 1, false).
@@ -84,9 +87,13 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 		AddItem(components.ResponseView, 0, 4, false).
 		AddItem(components.RequestList, 0, 1, false)
 
-	components.MainLayout = tview.NewFlex().SetDirection(tview.FlexColumn)
-	components.MainLayout.AddItem(leftFlex, 0, 7, true).
+	mainContent := tview.NewFlex().SetDirection(tview.FlexColumn)
+	mainContent.AddItem(leftFlex, 0, 7, true).
 		AddItem(rightFlex, 0, 9, false)
+
+	components.MainLayout = tview.NewFlex().SetDirection(tview.FlexRow)
+	components.MainLayout.AddItem(mainContent, 0, 1, true).
+		AddItem(components.Footer, 1, 1, false)
 
 	components.Pages = tview.NewPages()
 	components.Pages.AddPage("main", components.MainLayout, true, true)
@@ -159,24 +166,41 @@ func (components *UIComponents) createStatusComponent() {
 		SetTextColor(tcell.ColorBlue)
 }
 
+const informationText = `
+
+[blue]    Request Form  [white]|[blue]      Server      [white]|[blue]  Requests List
+                  [white]|                  |
+[white]  Send:   Ctrl+S  | (Re)start:Ctrl+R | Load:   Ctrl+O
+                  [white]|                  |
+[white]  Save:   Ctrl+A  | Stop:     Ctrl+X | Delete: Ctrl+D 
+                  [white]|                  |
+[white]  Clear:  Ctrl+U  |                  | 
+                  [white]|                  |
+
+[blue]                       Navigation
+					(while selected)
+	[white]  Scroll Response: J/K  |  Scroll List: J/K 
+	
+	`
+
 func (components *UIComponents) createKeybindingsModal() {
 	infoView := tview.NewTextView()
 	infoView.SetDynamicColors(true)
-	infoView.SetText(`hello`)
+	infoView.SetText(informationText)
 	infoView.SetBorder(true)
 	infoView.SetBorderColor(tcell.ColorYellow)
 	infoView.SetTitle(" Keybindings ")
 	infoView.SetTitleColor(tcell.ColorBlue)
 
-	components.InfoText = infoView // Added: store reference for updates
+	components.InfoText = infoView
 
-	components.KeybindingsModal = tview.NewFlex(). // Changed: FlexColumn for vertical stacking
-							AddItem(nil, 0, 1, false).
-							AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-								AddItem(nil, 0, 1, false).
-								AddItem(infoView, 20, 1, true).
-								AddItem(nil, 0, 1, false), 60, 1, false).
-							AddItem(nil, 0, 1, false)
+	components.KeybindingsModal = tview.NewFlex().
+		AddItem(nil, 0, 1, false).
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(nil, 0, 1, false).
+			AddItem(infoView, 20, 1, true).
+			AddItem(nil, 0, 1, false), 60, 1, false).
+		AddItem(nil, 0, 1, false)
 
 }
 
@@ -240,4 +264,10 @@ func (components *UIComponents) createRequestListComponent() {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(tcell.ColorBlue).
 		SetTitleColor(tcell.ColorBlue)
+}
+
+func (components *UIComponents) createFooterComponent() {
+	components.Footer = tview.NewTextView()
+	components.Footer.SetDynamicColors(true).
+		SetText("                                                     [yellow]Alt+i Toggle keybindings  |  [yellow]Alt+hjkl Navigate ")
 }
