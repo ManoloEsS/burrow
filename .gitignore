@@ -75,3 +75,6 @@ app.yaml
 ARCHITECTURE.md
 
 burrow
+
+TESTING_PLAN.md
+bin/*
