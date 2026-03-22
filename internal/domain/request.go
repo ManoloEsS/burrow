@@ -70,8 +70,8 @@ func (req *Request) ParseHeaders(headersStr string) error {
 	}
 
 	if headersStr != "" {
-		headers := strings.Split(headersStr, ",")
-		for _, h := range headers {
+		headers := strings.SplitSeq(headersStr, ",")
+		for h := range headers {
 			trimmedHeader := strings.TrimSpace(h)
 			parsedHeader := strings.SplitN(trimmedHeader, ":", 2)
 			if len(parsedHeader) == 2 {
@@ -122,8 +122,8 @@ func (req *Request) ParseParams(paramsStr string) error {
 		return nil
 	}
 
-	params := strings.Split(paramsStr, ",")
-	for _, p := range params {
+	params := strings.SplitSeq(paramsStr, ",")
+	for p := range params {
 		trimmedParams := strings.TrimSpace(p)
 		parsedParams := strings.SplitN(trimmedParams, ":", 2)
 		if len(parsedParams) == 2 {

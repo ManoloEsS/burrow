@@ -17,6 +17,7 @@ type Tui struct {
 	State               *UIState
 	Config              *config.Config
 	logger              *log.Logger
+	logFile             *os.File
 	ServerUpdateChannel chan service.UIEvent
 }
 
@@ -37,6 +38,7 @@ func NewTui(cfg *config.Config) *Tui {
 		State:               &UIState{},
 		Config:              cfg,
 		logger:              log.New(logFile, "[TUI] ", log.LstdFlags),
+		logFile:             logFile,
 		ServerUpdateChannel: make(chan service.UIEvent, 30),
 	}
 }
@@ -52,5 +54,17 @@ func (tui *Tui) Initialize() error {
 }
 
 func (tui *Tui) Start() error {
-	return tui.Ui.SetRoot(tui.Components.MainLayout, true).EnableMouse(true).Run()
+	return tui.Ui.SetRoot(tui.Components.Pages, true).EnableMouse(true).Run()
+}
+
+func (tui *Tui) Stop() {
+	close(tui.ServerUpdateChannel)
+	tui.Ui.Stop()
+}
+
+func (tui *Tui) Close() error {
+	if tui.logFile != nil {
+		return tui.logFile.Close()
+	}
+	return nil
 }

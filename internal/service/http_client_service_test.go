@@ -1,6 +1,7 @@
 package service
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/ManoloEsS/burrow/internal/domain"
@@ -49,10 +50,10 @@ func TestRequestJSONToStruct(t *testing.T) {
 
 func TestAddParams(t *testing.T) {
 	tests := []struct {
-		name           string
-		params         map[string]string
-		url            string
-		expectedResult string
+		name         string
+		params       map[string]string
+		url          string
+		assertParams map[string]string
 	}{
 		{
 			name: "URL with parameters",
@@ -60,29 +61,47 @@ func TestAddParams(t *testing.T) {
 				"param1": "value1",
 				"param2": "value2",
 			},
-			url:            "http://example.com",
-			expectedResult: "http://example.com?param1=value1&param2=value2",
+			url: "http://example.com",
+			assertParams: map[string]string{
+				"param1": "value1",
+				"param2": "value2",
+			},
 		},
 		{
-			name:           "Empty parameters",
-			params:         map[string]string{},
-			url:            "http://example.com",
-			expectedResult: "http://example.com",
+			name:         "Empty parameters",
+			params:       map[string]string{},
+			url:          "http://example.com",
+			assertParams: map[string]string{},
 		},
 		{
 			name: "URL with single parameter",
 			params: map[string]string{
 				"param1": "value1",
 			},
-			url:            "http://example.com",
-			expectedResult: "http://example.com?param1=value1",
+			url: "http://example.com",
+			assertParams: map[string]string{
+				"param1": "value1",
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := addParams(tt.params, tt.url)
-			assert.Equal(t, tt.expectedResult, result)
+			u, err := url.Parse(result)
+			assert.NoError(t, err)
+
+			if len(tt.assertParams) == 0 {
+				assert.Equal(t, tt.url, result)
+				assert.Len(t, u.Query(), 0)
+				return
+			}
+
+			values := u.Query()
+			for key, expected := range tt.assertParams {
+				assert.Equal(t, expected, values.Get(key))
+			}
+			assert.Equal(t, len(tt.assertParams), len(values))
 		})
 	}
 }

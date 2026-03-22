@@ -9,12 +9,20 @@ import (
 )
 
 type UIComponents struct {
-	MainLayout   *tview.Flex
-	Form         *tview.Form
-	LogoText     *tview.TextView
-	BindingsText *tview.TextView
-	ServerStatus *tview.TextView
-	ServerPath   *tview.InputField
+	MainLayout       *tview.Flex
+	Pages            *tview.Pages
+	Form             *tview.Form
+	FormTitle        *tview.TextView
+	LogoText         *tview.TextView
+	BindingsText     *tview.TextView
+	KeybindingsModal *tview.Flex
+	InfoText         *tview.TextView
+	ServerStatus     *tview.TextView
+	ServerPath       *tview.InputField
+	ServerInfoBox    *tview.Flex
+	ResponseView     *tview.TextView
+	RequestList      *tview.List
+	Footer           *tview.TextView
 
 	MethodDropdown *tview.DropDown
 	URLInput       *tview.InputField
@@ -23,11 +31,8 @@ type UIComponents struct {
 	BodyText       *tview.TextArea
 	BodyType       *tview.DropDown
 
-	ResponseView *tview.TextView
-
-	RequestList *tview.List
-	NameInput   *tview.InputField
-	StatusText  *tview.TextView
+	NameInput  *tview.InputField
+	StatusText *tview.TextView
 }
 
 func createTuiLayout(cfg *config.Config) *UIComponents {
@@ -35,7 +40,7 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 
 	components.createLogoComponent()
 
-	components.createKeybindingsComponent()
+	components.createKeybindingsModal()
 
 	components.createServerPathComponent()
 
@@ -59,43 +64,40 @@ func createTuiLayout(cfg *config.Config) *UIComponents {
 
 	components.createStatusComponent()
 
-	topFlex := tview.NewFlex()
+	components.createFooterComponent()
 
-	serverFlex := tview.NewFlex().SetDirection(tview.FlexRow)
-
-	serverFlex.AddItem(components.ServerStatus, 0, 2, false).
-		AddItem(components.ServerPath, 0, 1, false).
-		AddItem(components.StatusText, 0, 2, false)
-
-	topFlex.AddItem(components.LogoText, 0, 3, false).
-		AddItem(components.BindingsText, 0, 8, false)
-
-	bottomFlex := tview.NewFlex()
+	serverInfoBox := tview.NewFlex().SetDirection(tview.FlexRow)
+	serverInfoBox.AddItem(components.ServerStatus, 1, 1, false).
+		AddItem(components.ServerPath, 1, 1, false).
+		AddItem(components.StatusText, 1, 1, false)
+	serverInfoBox.SetBorder(true).
+		SetTitle(" Status ").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorderColor(tcell.ColorBlue).
+		SetTitleColor(tcell.ColorBlue)
+	components.ServerInfoBox = serverInfoBox
 
 	leftFlex := tview.NewFlex().SetDirection(tview.FlexRow)
-
-	leftFlex.AddItem(components.Form, 0, 1, false)
+	leftFlex.AddItem(components.LogoText, 3, 1, false).
+		// AddItem(components.FormTitle, 1, 1, false).
+		AddItem(components.Form, 0, 1, true)
 
 	rightFlex := tview.NewFlex().SetDirection(tview.FlexRow)
+	rightFlex.AddItem(components.ServerInfoBox, 5, 1, false).
+		AddItem(components.ResponseView, 0, 4, false).
+		AddItem(components.RequestList, 0, 1, false)
 
-	responseFlex := tview.NewFlex()
-
-	responseFlex.AddItem(components.ResponseView, 0, 1, false)
-
-	bottomRightFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
-
-	bottomRightFlex.AddItem(components.RequestList, 0, 9, false)
-	bottomRightFlex.AddItem(serverFlex, 0, 5, false)
-
-	rightFlex.AddItem(responseFlex, 0, 8, false).
-		AddItem(bottomRightFlex, 0, 2, false)
-
-	bottomFlex.AddItem(leftFlex, 0, 7, false).
+	mainContent := tview.NewFlex().SetDirection(tview.FlexColumn)
+	mainContent.AddItem(leftFlex, 0, 7, true).
 		AddItem(rightFlex, 0, 9, false)
 
 	components.MainLayout = tview.NewFlex().SetDirection(tview.FlexRow)
-	components.MainLayout.AddItem(topFlex, 5, 2, false).
-		AddItem(bottomFlex, 0, 10, false)
+	components.MainLayout.AddItem(mainContent, 0, 1, true).
+		AddItem(components.Footer, 1, 1, false)
+
+	components.Pages = tview.NewPages()
+	components.Pages.AddPage("main", components.MainLayout, true, true)
+	components.Pages.AddPage("keybindings", components.KeybindingsModal, true, false)
 
 	return components
 }
@@ -134,6 +136,10 @@ func (components *UIComponents) createFormAndSetup() {
 
 	components.Form = form
 
+	components.FormTitle = tview.NewTextView().
+		SetText(" Request ").
+		SetTextColor(tcell.ColorBlue)
+
 	methodFormItem := form.GetFormItem(0)
 	if methodDropDown, ok := methodFormItem.(*tview.DropDown); ok {
 		components.MethodDropdown = methodDropDown
@@ -150,7 +156,7 @@ func (components *UIComponents) createFormAndSetup() {
 
 func (components *UIComponents) createLogoComponent() {
 	components.LogoText = tview.NewTextView().SetText(
-		" _ __                      \n( /  )                     \n /--< , , _   _   __ , , , \n/___/(_/_/ (_/ (_(_)(_(_/_ ",
+		" ┳┓           \n ┣┫┓┏┏┓┏┓┏┓┓┏┏\n ┻┛┗┻┛ ┛ ┗┛┗┻┛",
 	).SetTextColor(tcell.ColorBlue)
 }
 
@@ -160,15 +166,42 @@ func (components *UIComponents) createStatusComponent() {
 		SetTextColor(tcell.ColorBlue)
 }
 
-func (components *UIComponents) createKeybindingsComponent() {
-	components.BindingsText = tview.NewTextView().
-		SetDynamicColors(true).
-		SetText(`[white]Request form[-]     [blue]|[-][-][white]Response view[-]        [blue]|[-][white]Saved requests list[-][blue]|[-][white]Server[-]
-C-f: focus form  [blue]|[-] C-t: focus resp     [blue]|[-] C-l: focus list   [blue]|[-] C-g: focus input
-C-s: send request[blue]|[-] j/k:scroll    ↑↓    [blue]|[-] j/k:navigate  ↑↓  [blue]|[-] C-x: kill server
-C-a: save request[blue]|[-][blue]_____________________|[-] C-o: load request [blue]|[-] C-r: start server
-C-n/p: navigate↑↓  C-u: clear form     [blue]|[-] C-d: del request  [blue]|[-]`).
-		SetTextColor(tcell.ColorGray)
+const informationText = `
+
+[blue]    Request Form  [white]|[blue]      Server      [white]|[blue]  Requests List
+                  [white]|                  |
+[white]  Send:   Ctrl+S  | (Re)start:Ctrl+R | Load:   Ctrl+O
+                  [white]|                  |
+[white]  Save:   Ctrl+A  | Stop:     Ctrl+X | Delete: Ctrl+D 
+                  [white]|                  |
+[white]  Clear:  Ctrl+U  |                  | 
+                  [white]|                  |
+
+[blue]                       Navigation
+					(while selected)
+	[white]  Scroll Response: J/K  |  Scroll List: J/K 
+	
+	`
+
+func (components *UIComponents) createKeybindingsModal() {
+	infoView := tview.NewTextView()
+	infoView.SetDynamicColors(true)
+	infoView.SetText(informationText)
+	infoView.SetBorder(true)
+	infoView.SetBorderColor(tcell.ColorYellow)
+	infoView.SetTitle(" Keybindings ")
+	infoView.SetTitleColor(tcell.ColorBlue)
+
+	components.InfoText = infoView
+
+	components.KeybindingsModal = tview.NewFlex().
+		AddItem(nil, 0, 1, false).
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(nil, 0, 1, false).
+			AddItem(infoView, 20, 1, true).
+			AddItem(nil, 0, 1, false), 60, 1, false).
+		AddItem(nil, 0, 1, false)
+
 }
 
 func (components *UIComponents) createServerPathComponent() {
@@ -217,18 +250,24 @@ func (components *UIComponents) createResponseViewComponent() {
 	components.ResponseView = tview.NewTextView()
 	components.ResponseView.SetDynamicColors(true).
 		SetBorder(true).
-		SetTitle("Response").
+		SetTitle(" Response ").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(tcell.ColorBlue).
-		SetTitleColor(tcell.ColorYellow)
+		SetTitleColor(tcell.ColorBlue)
 }
 
 func (components *UIComponents) createRequestListComponent() {
 	components.RequestList = tview.NewList()
 	components.RequestList.ShowSecondaryText(false).
 		SetBorder(true).
-		SetTitle("Saved Requests").
+		SetTitle(" Saved Requests ").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorderColor(tcell.ColorBlue).
-		SetTitleColor(tcell.ColorYellow)
+		SetTitleColor(tcell.ColorBlue)
+}
+
+func (components *UIComponents) createFooterComponent() {
+	components.Footer = tview.NewTextView()
+	components.Footer.SetDynamicColors(true).
+		SetText("                                                     [yellow]Alt+i Toggle keybindings  |  [yellow]Alt+hjkl Navigate ")
 }
