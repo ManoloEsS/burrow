@@ -30,7 +30,7 @@ All without leaving the terminal.
 Install via `go install`:
 
 ```bash
-go install github.com/ManoloEsS/burrow/cmd/burrow@latest
+go install github.com/ManoloEsS/burrow@latest
 ```
 
 ## Quick Start
@@ -356,7 +356,7 @@ git clone https://github.com/ManoloEsS/burrow.git
 
 cd burrow
 go mod tidy
-go build -o burrow cmd/burrow/main.go
+go build -o burrow .
 ```
 
 ## Roadmap
