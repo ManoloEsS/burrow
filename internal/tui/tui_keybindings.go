@@ -102,18 +102,6 @@ func (tui *Tui) focusForm() {
 	tui.updateBorderColors()
 }
 
-func (tui *Tui) focusServerInput() {
-	tui.State.CurrentFocused = tui.Components.ServerPath
-	tui.Ui.SetFocus(tui.Components.ServerPath)
-	tui.updateBorderColors()
-}
-
-func (tui *Tui) focusResponseView() {
-	tui.State.CurrentFocused = tui.Components.ResponseView
-	tui.Ui.SetFocus(tui.Components.ResponseView)
-	tui.updateBorderColors()
-}
-
 func (tui *Tui) navigateForm(forward bool) {
 	subcompCount := tui.Components.Form.GetFormItemCount()
 	if forward {
