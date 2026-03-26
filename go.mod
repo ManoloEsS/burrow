@@ -5,10 +5,10 @@ go 1.25.1
 require (
 	github.com/adrg/xdg v0.5.3
 	github.com/gdamore/tcell/v2 v2.13.5
+	github.com/goccy/go-yaml v1.19.2
 	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/rivo/tview v0.42.0
 	github.com/stretchr/testify v1.11.1
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -20,4 +20,5 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/term v0.37.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
