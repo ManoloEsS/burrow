@@ -40,8 +40,8 @@ func TestLoad_WithEnvironmentVariables(t *testing.T) {
 	withIsolatedXDG(t, func() {
 		clearEnvVars()
 
-		os.Setenv("DEFAULT_PORT", "3000")
-		os.Setenv("DB_FILE", "/tmp/test.db")
+		os.Setenv("BURROW_DEFAULT_PORT", "3000")
+		os.Setenv("BURROW_DB_FILE", "/tmp/test.db")
 
 		t.Cleanup(clearEnvVars)
 
@@ -84,7 +84,7 @@ database:
 	  path: "/custom/path/db.sqlite"
 `)
 
-		os.Setenv("DEFAULT_PORT", "5000")
+		os.Setenv("BURROW_DEFAULT_PORT", "5000")
 		defer clearEnvVars()
 
 		cfg, err := Load()
@@ -150,7 +150,7 @@ func TestGenerateDbString(t *testing.T) {
 }
 
 func clearEnvVars() {
-	envVars := []string{"DEFAULT_PORT", "DB_FILE", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME"}
+	envVars := []string{"BURROW_DEFAULT_PORT", "BURROW_DB_FILE", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME"}
 	for _, env := range envVars {
 		os.Unsetenv(env)
 	}

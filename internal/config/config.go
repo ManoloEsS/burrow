@@ -78,11 +78,11 @@ func loadFromFile(cfg *Config) error {
 }
 
 func loadFromEnv(cfg *Config) {
-	if port := os.Getenv("DEFAULT_PORT"); port != "" {
+	if port := os.Getenv("BURROW_DEFAULT_PORT"); port != "" {
 		cfg.App.DefaultPort = port
 	}
 
-	if dbPath := os.Getenv("DB_FILE"); dbPath != "" {
+	if dbPath := os.Getenv("BURROW_DB_FILE"); dbPath != "" {
 		cfg.Database.Path = dbPath
 	}
 

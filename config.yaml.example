@@ -20,10 +20,10 @@ database:
 # 
 # You can also set these values using environment variables:
 # 
-# DEFAULT_PORT - Override the default port (default: 8080)
-# DB_FILE - Override database path (default: ~/.local/share/burrow/burrow.db)
+# BURROW_DEFAULT_PORT - Override the default port (default: 8080)
+# BURROW_DB_FILE - Override database path (default: ~/.local/share/burrow/burrow.db)
 #
 # Example:
-#   DEFAULT_PORT=3000 burrow
-#   DB_FILE=/tmp/mydb.db burrow
+#   BURROW_DEFAULT_PORT=3000 burrow
+#   BURROW_DB_FILE=/tmp/mydb.db burrow
 
