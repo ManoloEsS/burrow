@@ -190,35 +190,34 @@ Available variables:
 
 ## Keybindings
 
+### General
+
+- **Alt+i** – Toggle keybindings modal
+- **Esc** – Close modal
+- **Ctrl+Q** – Quit
+
+### Navigation
+
+- **Alt+h** – Focus left panel
+- **Alt+l** – Focus right panel
+- **Alt+j** – Focus down / Navigate list down
+- **Alt+k** – Focus up / Navigate list up
+
 ### Request Form
 
-- **Ctrl-F** – Focus form
-- **Ctrl-S** – Send request
-- **Ctrl-A** – Save request
-- **Ctrl-U** – Clear form
-- **Ctrl-N / Ctrl-P** – Navigate fields
-
-### Response View
-
-- **Ctrl-T** – Focus response
-- **J / K** – Scroll
+- **Ctrl+S** – Send request
+- **Ctrl+A** – Save request
+- **Ctrl+U** – Clear form
 
 ### Saved Requests
 
-- **Ctrl-L** – Focus list
-- **Ctrl-O** – Load request
-- **Ctrl-D** – Delete request
-- **J / K** – Navigate list
+- **Ctrl+O** – Load request
+- **Ctrl+D** – Delete request
 
 ### Server Controls
 
-- **Ctrl-G** – Focus server path
-- **Ctrl-R** – Start server
-- **Ctrl-X** – Stop server
-
-### Exit
-
-- **Ctrl-C**
+- **Ctrl+R** – Start server
+- **Ctrl+X** – Stop server
 
 ## Technical Highlights
 
