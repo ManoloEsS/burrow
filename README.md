@@ -21,7 +21,7 @@ Burrow keeps everything in one place:
 - Build and send HTTP requests
 - Start and stop Go servers
 - Monitor server health
-- Save and reuse requests
+- Save and reuse request templates
 
 All without leaving the terminal.
 
